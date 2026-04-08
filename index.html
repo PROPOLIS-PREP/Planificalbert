@@ -1,996 +1,1325 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="theme-color" content="#0a0a1a"/>
-<title>Planificador</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFF8F0">
+<title>🇮🇹 Italiano per Spagnoli</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0a0a1a; --s1:#111128; --s2:#1a1a38; --s3:#242450;
-  --bd:rgba(120,120,255,.1); --bd2:rgba(120,120,255,.2);
-  --tx:#e8e8ff; --mu:#6060a8;
-  --ac:#7c6ff0; --acg:rgba(124,111,240,.14); --acb:rgba(124,111,240,.35);
-  --or:#ff9340; --org:rgba(255,147,64,.14);
-  --ok:#3ecf8e; --dn:#ff5f7e;
-  --r:14px; --rs:9px;
-  --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
-  --HH:64px;/* hour height */ --GS:7;/* grid start hour */
+  --cream:#FFF8F0;--paper:#FFFDF8;--ink:#2A2118;--ink2:#7A6B5E;
+  --red:#CE2B37;--green:#2E8B57;--terra:#D4714A;--blue:#4A7FB5;--gold:#C99A2E;
+  --ok:#5BA87A;--err:#CE4A5A;
+  --sh:0 2px 14px rgba(42,33,24,.10);
 }
-html{height:100%;}
-body{height:100%;background:var(--bg);color:var(--tx);font-family:'Outfit',sans-serif;
-  -webkit-font-smoothing:antialiased;overflow:hidden;}
-input,select,textarea,button{font-family:'Outfit',sans-serif;}
-input[type=date],input[type=time]{color-scheme:dark;}
-button{cursor:pointer;border:none;background:none;color:inherit;}
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px;}
-
-/* ── APP SHELL ──────────────────────────────────────── */
-.app{display:flex;flex-direction:column;height:100dvh;max-width:1080px;
-  margin:0 auto;padding:0 14px;
-  padding-top:calc(var(--st) + 10px);
-  padding-bottom:calc(var(--sb) + 70px);}
-
-/* ── HEADER ─────────────────────────────────────────── */
-.hdr{display:flex;align-items:center;gap:9px;padding-bottom:11px;
-  border-bottom:1px solid var(--bd);margin-bottom:12px;flex-wrap:wrap;flex-shrink:0;}
-.brand{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.brand-ico{font-size:1.3rem;}
-.brand-name{font-size:1.05rem;font-weight:800;letter-spacing:-.03em;
-  background:linear-gradient(120deg,#a89cf8 0%,#f472b6 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.srch{position:relative;flex:1;min-width:110px;max-width:200px;}
-.srch input{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rs);
-  padding:8px 10px 8px 28px;color:var(--tx);font-size:.78rem;outline:none;
-  transition:border-color .15s;}
-.srch input:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acg);}
-.srch input::placeholder{color:var(--mu);}
-.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);
-  color:var(--mu);font-size:.78rem;pointer-events:none;}
-.srch-dd{position:absolute;top:calc(100%+4px);left:0;right:0;
-  background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);
-  z-index:400;box-shadow:0 12px 36px rgba(0,0,0,.6);overflow:hidden;}
-.srch-row{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;
-  font-size:.8rem;border-bottom:1px solid var(--bd);transition:background .1s;}
-.srch-row:last-child{border-bottom:none;}
-.srch-row:hover,.srch-row:active{background:var(--s2);}
-.srch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.srch-lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.srch-days{font-size:.65rem;color:var(--mu);}
-.srch-empty{padding:14px;text-align:center;color:var(--mu);font-size:.78rem;}
-.tabs{display:flex;gap:2px;background:var(--s1);padding:3px;
-  border-radius:var(--r);border:1px solid var(--bd);flex-shrink:0;}
-.tab{padding:7px 12px;border-radius:var(--rs);font-size:.78rem;font-weight:600;
-  color:var(--mu);transition:all .14s;white-space:nowrap;}
-.tab.on{background:var(--ac);color:#fff;box-shadow:0 2px 14px rgba(124,111,240,.5);}
-.tab:not(.on):hover,.tab:not(.on):active{color:var(--tx);background:var(--s2);}
-
-/* ── NOTIFICATION BANNER ─────────────────────────────── */
-.nb{display:flex;align-items:center;gap:10px;padding:10px 14px;
-  background:linear-gradient(90deg,rgba(124,111,240,.2),rgba(244,114,182,.12));
-  border:1px solid var(--acb);border-radius:var(--rs);
-  font-size:.78rem;color:#c4b5fd;cursor:pointer;margin-bottom:12px;flex-shrink:0;
-  transition:background .14s;}
-.nb:hover,.nb:active{background:linear-gradient(90deg,rgba(124,111,240,.3),rgba(244,114,182,.2));}
-.nb-arr{margin-left:auto;opacity:.7;}
-.nb.ok{background:rgba(62,207,142,.1);border-color:rgba(62,207,142,.3);color:var(--ok);cursor:default;}
-.nb.err{background:rgba(255,95,126,.08);border-color:rgba(255,95,126,.2);color:var(--dn);cursor:default;}
-
-/* ── WEEK NAV ────────────────────────────────────────── */
-.wk-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-shrink:0;}
-.wk-lbl{flex:1;text-align:center;font-size:.9rem;font-weight:700;}
-.wk-lbl span{color:var(--mu);font-size:.75rem;font-weight:400;margin-left:6px;}
-.nav-b{width:34px;height:34px;border-radius:var(--rs);background:var(--s1);
-  border:1px solid var(--bd);color:var(--tx);font-size:1.1rem;
-  display:flex;align-items:center;justify-content:center;transition:all .14s;}
-.nav-b:hover,.nav-b:active{background:var(--s2);border-color:var(--ac);}
-.hoy-b{padding:6px 13px;border-radius:var(--rs);background:var(--acg);
-  border:1px solid var(--acb);color:var(--ac);font-size:.78rem;font-weight:700;
-  transition:all .14s;}
-.hoy-b:hover,.hoy-b:active{background:var(--ac);color:#fff;}
-
-/* ── CALENDAR CONTAINER ──────────────────────────────── */
-.cal-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column;
-  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
-  min-height:0;}
-.cal-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;position:relative;}
-.cal-inner{min-width:480px;}
-
-/* Day headers row */
-.dhdrs{display:grid;grid-template-columns:46px repeat(7,1fr);
-  position:sticky;top:0;z-index:30;background:var(--s1);
-  border-bottom:2px solid var(--bd2);}
-.tc-sp{border-right:1px solid var(--bd);}
-.dhdr{text-align:center;padding:8px 2px;border-left:1px solid var(--bd);}
-.d-name{font-size:.58rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;color:var(--mu);}
-.d-num{font-size:1.1rem;font-weight:800;width:34px;height:34px;
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  margin:3px auto 0;cursor:pointer;transition:all .13s;line-height:1;}
-.d-num:hover,.d-num:active{background:var(--s2);}
-.d-num.hoy{background:linear-gradient(135deg,var(--ac),#9d6ff0);
-  color:#fff;box-shadow:0 2px 14px rgba(124,111,240,.5);}
-.d-num.hev::after{content:'';display:block;width:4px;height:4px;border-radius:50%;
-  background:var(--or);margin:-5px auto 0;}
-
-/* All-day row */
-.adr{display:grid;grid-template-columns:46px repeat(7,1fr);
-  border-bottom:1px solid var(--bd);min-height:26px;}
-.adr-lbl{font-size:.52rem;color:var(--mu);text-align:right;padding:5px 5px 0 0;
-  font-weight:700;text-transform:uppercase;letter-spacing:.04em;
-  border-right:1px solid var(--bd);}
-.adc{border-left:1px solid var(--bd);padding:2px 2px;cursor:pointer;}
-.ade{border-radius:3px;padding:2px 5px;font-size:.62rem;font-weight:700;
-  margin-bottom:2px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-/* Time grid */
-.tgrid{display:grid;grid-template-columns:46px repeat(7,1fr);position:relative;}
-.tlbl{height:var(--HH);border-right:1px solid var(--bd);
-  font-size:.58rem;color:var(--mu);text-align:right;
-  padding:0 5px;display:flex;align-items:flex-start;padding-top:3px;
-  background:var(--s1);position:sticky;left:0;z-index:5;}
-.hcell{border-left:1px solid var(--bd);border-top:1px solid var(--bd);
-  height:var(--HH);position:relative;cursor:pointer;transition:background .1s;}
-.hcell:hover,.hcell:active{background:rgba(124,111,240,.06);}
-.hline{position:absolute;top:50%;left:0;right:0;
-  border-top:1px dashed rgba(120,120,255,.05);pointer-events:none;}
-
-/* Timed events */
-.ev{position:absolute;border-radius:8px;padding:4px 7px;cursor:pointer;
-  overflow:hidden;z-index:10;transition:filter .12s,transform .12s;
-  border:1px solid rgba(0,0,0,.15);}
-.ev:hover{filter:brightness(1.18);transform:scaleX(1.015);}
-.ev-title{font-size:.68rem;font-weight:700;color:#fff;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ev-time{font-size:.56rem;color:rgba(255,255,255,.8);margin-top:1px;}
-
-/* Current time indicator */
-.now-line{position:absolute;left:0;right:0;pointer-events:none;z-index:20;display:flex;align-items:center;}
-.now-dot{width:9px;height:9px;border-radius:50%;background:var(--dn);flex-shrink:0;}
-.now-bar{flex:1;height:2px;background:var(--dn);border-radius:1px;}
-
-/* ── MONTH VIEW ──────────────────────────────────────── */
-.mv{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;}
-.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:12px;}
-.mwdh{text-align:center;font-size:.58rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;color:var(--mu);padding:5px 0;}
-.mday{aspect-ratio:1;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;
-  align-items:center;padding:4px 2px 3px;transition:background .12s;border:1px solid transparent;}
-.mday:hover,.mday:active{background:var(--s2);}
-.mday.today{background:var(--acg);border-color:var(--ac)!important;}
-.mday.past{opacity:.32;}
-.mday.empty{pointer-events:none;opacity:0;}
-.mdn{font-size:.68rem;font-weight:600;line-height:1;margin-bottom:2px;}
-.mday.today .mdn{color:var(--ac);font-weight:800;}
-.mdots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;}
-.mdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-.mdot.dl{border-radius:2px;transform:rotate(45deg);}
-.mlist{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
-  padding:14px;margin-top:14px;}
-.mlist-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
-  color:var(--mu);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.mlist-lbl::before{content:'';width:10px;height:2px;background:var(--ac);border-radius:2px;}
-.ev-row{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;
-  border-radius:var(--rs);background:var(--s2);margin-bottom:5px;cursor:pointer;
-  border:1px solid transparent;transition:border-color .12s;}
-.ev-row:last-child{margin-bottom:0;}
-.ev-row:hover,.ev-row:active{border-color:var(--bd2);}
-.ev-bar{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0;min-height:22px;}
-.ev-info{flex:1;min-width:0;}
-.ev-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ev-name.done{text-decoration:line-through;color:var(--mu);}
-.ev-meta{font-size:.62rem;color:var(--mu);margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;}
-.badge{padding:1px 5px;border-radius:3px;font-size:.57rem;font-weight:700;text-transform:uppercase;}
-.bdn{background:rgba(255,95,126,.15);color:var(--dn);}
-.bor{background:rgba(255,147,64,.15);color:var(--or);}
-.bgr{background:rgba(62,207,142,.15);color:var(--ok);}
-.bmn{background:var(--s3);color:var(--mu);}
-.bac{background:var(--acg);color:var(--ac);}
-.bpr-a{background:rgba(255,95,126,.12);color:var(--dn);}
-.bpr-m{background:rgba(255,147,64,.12);color:var(--or);}
-.bpr-b{background:rgba(62,207,142,.12);color:var(--ok);}
-.ev-chk{width:18px;height:18px;border-radius:50%;border:2px solid;
-  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:9px;margin-top:1px;transition:all .13s;}
-
-/* ── LISTS VIEW ──────────────────────────────────────── */
-.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;}
-.lcard{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
-  padding:14px;cursor:pointer;transition:all .16s;overflow:hidden;}
-.lcard:hover,.lcard:active{border-color:var(--acb);background:var(--s2);}
-.lct{font-size:.92rem;font-weight:700;margin-bottom:3px;padding-left:10px;}
-.lcm{font-size:.65rem;color:var(--mu);padding-left:10px;margin-bottom:7px;}
-.lci{font-size:.7rem;color:var(--mu);padding:2px 0 2px 10px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lci.ck{text-decoration:line-through;opacity:.42;}
-.pgb{background:var(--s3);border-radius:3px;height:4px;overflow:hidden;margin-top:9px;}
-.pgf{height:100%;border-radius:3px;transition:width .5s;}
-.pgt{font-size:.6rem;color:var(--mu);margin-top:3px;}
-.lnew{border-style:dashed;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;min-height:100px;gap:6px;color:var(--mu);font-size:.8rem;}
-.lnew:hover,.lnew:active{border-color:var(--ac);color:var(--tx);background:var(--acg);}
-.ldet{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;}
-.ldh{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
-.bkb{width:34px;height:34px;border-radius:var(--rs);background:var(--s2);
-  border:1px solid var(--bd);color:var(--tx);display:flex;align-items:center;
-  justify-content:center;font-size:1rem;flex-shrink:0;}
-.ldtitle{font-weight:700;font-size:1rem;flex:1;border-left:3px solid;padding-left:10px;}
-.ladd{display:flex;gap:7px;margin-bottom:10px;}
-.litems{display:flex;flex-direction:column;gap:3px;}
-.lirow{display:flex;align-items:center;gap:9px;padding:9px 10px;
-  border-radius:var(--rs);background:var(--s2);transition:background .12s;}
-.lirow:hover,.lirow:active{background:var(--s3);}
-.lichk{width:18px;height:18px;border-radius:5px;border:2px solid var(--bd2);
-  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;}
-.litxt{flex:1;font-size:.83rem;}
-.litxt.ck{text-decoration:line-through;color:var(--mu);}
-.lidel{width:22px;height:22px;border-radius:4px;background:rgba(255,95,126,.1);
-  color:var(--dn);font-size:.78rem;display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .12s;}
-.lirow:hover .lidel,.lirow:active .lidel{opacity:1;}
-
-/* ── MODAL ───────────────────────────────────────────── */
-.ov{position:fixed;inset:0;background:rgba(4,4,16,.92);backdrop-filter:blur(10px);
-  z-index:500;display:flex;align-items:flex-end;justify-content:center;}
-.modal{background:var(--s1);border:1px solid var(--bd2);
-  border-radius:22px 22px 0 0;padding:20px 18px calc(20px + var(--sb));
-  width:100%;max-width:520px;max-height:92vh;overflow-y:auto;
-  box-shadow:0 -8px 48px rgba(0,0,0,.7),0 0 0 1px rgba(124,111,240,.08);}
-.mh{width:36px;height:4px;background:var(--s3);border-radius:2px;margin:0 auto 18px;}
-.mtitle{font-size:1rem;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:7px;}
-.mtitle em{background:linear-gradient(120deg,#a89cf8,#f472b6);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;}
-.fg{margin-bottom:14px;}
-.flbl{display:block;font-size:.6rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.09em;color:var(--mu);margin-bottom:6px;}
-.fi,.fsel,.fta{width:100%;background:var(--s2);border:1px solid var(--bd);
-  border-radius:var(--rs);padding:10px 12px;color:var(--tx);font-size:.88rem;
-  outline:none;-webkit-appearance:none;transition:border-color .14s;}
-.fi:focus,.fsel:focus,.fta:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acg);}
-.fi::placeholder,.fta::placeholder{color:var(--mu);}
-.fta{resize:none;min-height:62px;line-height:1.55;}
-.tog2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.tog3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.tog4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
-.tog6{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
-.tb{padding:9px 6px;border-radius:var(--rs);border:1px solid var(--bd);
-  background:var(--s2);color:var(--mu);font-size:.77rem;font-weight:600;
-  text-align:center;transition:all .13s;}
-.tb.on{background:var(--acg);border-color:var(--ac);color:var(--ac);}
-.tb:active{opacity:.8;}
-.time2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.csw{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;
-  transition:transform .13s,border-color .13s;flex-shrink:0;}
-.csw:active{transform:scale(1.1);}
-.csw.sel{border-color:#fff;transform:scale(1.15);}
-.cswrow{display:flex;gap:8px;flex-wrap:wrap;}
-.macts{display:flex;gap:8px;margin-top:20px;}
-.mb{padding:12px 16px;border-radius:var(--rs);font-size:.85rem;font-weight:700;flex:1;transition:all .13s;}
-.mb:active{opacity:.82;}
-.mbp{background:linear-gradient(135deg,var(--ac),#9d6ff0);color:#fff;
-  box-shadow:0 3px 16px rgba(124,111,240,.4);}
-.mbs{background:var(--s2);color:var(--mu);border:1px solid var(--bd);}
-.mbs:hover{color:var(--tx);background:var(--s3);}
-.mbd{background:rgba(255,95,126,.12);color:var(--dn);border:1px solid rgba(255,95,126,.2);
-  flex:0;padding:12px 14px;}
-.mbd:hover{background:rgba(255,95,126,.22);}
-.mb:disabled{opacity:.35;cursor:not-allowed;}
-
-/* ── FAB ─────────────────────────────────────────────── */
-.fab{position:fixed;bottom:calc(20px + var(--sb));right:16px;
-  width:58px;height:58px;border-radius:50%;
-  background:linear-gradient(135deg,var(--ac),#c084fc);color:#fff;
-  font-size:1.7rem;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 22px rgba(124,111,240,.55);z-index:200;
-  transition:transform .14s;-webkit-tap-highlight-color:transparent;}
-.fab:active{transform:scale(.9);}
-
-/* ── MISC ────────────────────────────────────────────── */
-.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.stl{font-size:1rem;font-weight:700;}
-.sbadge{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-  color:var(--ac);background:var(--acg);padding:3px 9px;border-radius:4px;}
-.empty{text-align:center;padding:28px 14px;color:var(--mu);}
-.empty-ico{font-size:1.7rem;opacity:.38;margin-bottom:8px;}
-.empty-txt{font-size:.8rem;line-height:1.55;}
-.addbtn{width:100%;padding:10px;border-radius:var(--rs);border:1px dashed var(--bd);
-  background:transparent;color:var(--mu);font-size:.8rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px;}
-.addbtn:hover,.addbtn:active{color:var(--tx);border-color:var(--ac);background:var(--acg);}
-
-/* ── NOTIF SETTINGS ──────────────────────────────────── */
-.notif-info{font-size:.72rem;color:var(--mu);line-height:1.6;margin-top:10px;padding:10px;
-  background:var(--s2);border-radius:var(--rs);}
-.notif-info b{color:var(--tx);}
-
-@media(max-width:580px){
-  .tabs .tab{padding:7px 9px;font-size:.72rem;}
-  .wk-lbl{font-size:.8rem;}
-  .dhdrs,.adr,.tgrid{min-width:420px;}
-  .d-num{font-size:.95rem;width:30px;height:30px;}
+html,body{height:100%}
+body{
+  font-family:'Nunito',sans-serif;background:var(--cream);color:var(--ink);
+  min-height:100dvh;max-width:480px;margin:0 auto;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(0,0,0,.025) 27px,rgba(0,0,0,.025) 28px);
 }
-@media(max-width:380px){
-  .brand-name{font-size:.9rem;}
-  .tabs .tab{padding:6px 7px;font-size:.7rem;}
+#app{padding-bottom:80px;min-height:100dvh}
+
+/* NAV — 6 items */
+nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;background:var(--paper);
+  border-top:1.5px solid rgba(42,33,24,.07);display:flex;z-index:100;
+  box-shadow:0 -4px 20px rgba(42,33,24,.08);
 }
+.nt{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:8px 2px 12px;cursor:pointer;border:none;background:none;
+  color:var(--ink2);font-family:'Nunito',sans-serif;font-size:9px;font-weight:800;
+  letter-spacing:.01em;gap:2px;transition:color .2s;
+}
+.nt .ni{font-size:19px;transition:transform .2s;display:block}
+.nt.act{color:var(--terra)}
+.nt.act .ni{transform:scale(1.18)}
+
+/* SCREENS */
+.scr{display:none;padding:0 16px 20px;animation:si .25s ease}
+.scr.act{display:block}
+@keyframes si{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* COMMON */
+.hd{padding:52px 0 16px;text-align:center}
+.hd h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.15}
+.hd p{font-size:13px;color:var(--ink2);font-weight:600;margin-top:4px}
+.card{background:var(--paper);border-radius:16px;padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ink2);margin-bottom:10px}
+.btn{display:block;width:100%;padding:14px;border-radius:13px;border:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(135deg,var(--terra),#B55830);color:#fff;box-shadow:0 4px 16px rgba(212,113,74,.35);margin-bottom:10px}
+.btn-b{background:linear-gradient(135deg,var(--blue),#3B6896);color:#fff;box-shadow:0 4px 14px rgba(74,127,181,.30);margin-bottom:10px}
+.btn-g{background:linear-gradient(135deg,var(--ok),#489068);color:#fff;margin-bottom:10px}
+.btn-gh{background:var(--paper);color:var(--ink);border:2px solid rgba(42,33,24,.10);margin-bottom:10px}
+.btn-gold{background:linear-gradient(135deg,#E8C84A,#C99A2E);color:#fff;box-shadow:0 4px 14px rgba(201,154,46,.35);margin-bottom:10px}
+.divider{height:1px;background:rgba(42,33,24,.07);margin:10px 0}
+
+/* HOME */
+.flag{display:flex;align-items:center;gap:8px;padding:52px 16px 0}
+.fb{height:6px;flex:1;border-radius:3px}
+.fb.g{background:var(--green)}.fb.r{background:var(--red)}
+.fe{font-size:28px}
+.ht{font-family:'Playfair Display',serif;font-size:27px;font-weight:700;text-align:center;padding:8px 16px 2px;line-height:1.2}
+.hs{text-align:center;color:var(--ink2);font-size:13px;font-weight:600;padding:0 16px 18px}
+.streak-c{background:linear-gradient(135deg,#FFF3E8,#FFE5CE);border:2px solid rgba(212,113,74,.2);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:12px;box-shadow:var(--sh)}
+.sf{font-size:42px}
+.si h2{font-size:28px;font-weight:900;color:var(--terra);line-height:1}
+.si p{font-size:12px;color:var(--ink2);font-weight:700;margin-top:2px}
+.stats-r{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.sm{background:var(--paper);border-radius:13px;padding:12px 8px;text-align:center;box-shadow:var(--sh)}
+.sm .v{font-size:22px;font-weight:900;display:block}
+.sm .l{font-size:11px;color:var(--ink2);font-weight:700}
+.due-c{background:linear-gradient(135deg,#EBF4FF,#D5E9FF);border:2px solid rgba(74,127,181,.22);border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--sh)}
+.due-c h3{font-size:14px;color:var(--blue);font-weight:800;margin-bottom:4px}
+.due-n{font-size:36px;font-weight:900;color:var(--blue);line-height:1}
+.due-c p{font-size:12px;color:var(--ink2);font-weight:600;margin-top:4px}
+.unlock-c{background:linear-gradient(135deg,#FFFBE8,#FFF3CC);border:2px solid rgba(201,154,46,.25);border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.unlock-c h3{font-size:13px;font-weight:800;color:var(--gold);margin-bottom:6px}
+.unlock-c p{font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:10px;line-height:1.4}
+.week-progress{background:var(--paper);border-radius:16px;padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.week-progress h3{font-size:13px;font-weight:800;margin-bottom:10px}
+.weeks-dots{display:flex;gap:5px;flex-wrap:wrap}
+.wd{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;transition:all .2s}
+.wd.done{background:var(--green);color:#fff}
+.wd.current{background:var(--terra);color:#fff;box-shadow:0 2px 8px rgba(212,113,74,.35)}
+.wd.unlocked{background:var(--gold);color:#fff;box-shadow:0 2px 8px rgba(201,154,46,.3)}
+.wd.future{background:rgba(42,33,24,.07);color:var(--ink2)}
+
+/* SESSION */
+.sess-top{display:flex;align-items:center;gap:10px;padding:50px 16px 12px}
+.pb-wrap{flex:1;height:8px;background:rgba(42,33,24,.08);border-radius:4px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--terra),#E8856A);border-radius:4px;transition:width .4s ease}
+.pb-txt{font-size:12px;font-weight:800;color:var(--ink2);white-space:nowrap}
+.fc-wrap{perspective:1000px;margin:0 16px 16px;min-height:265px}
+.fc{position:relative;width:100%;min-height:265px;cursor:pointer;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:20px}
+.fc.flipped{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:var(--sh)}
+.fc-front{background:var(--paper);border:2px solid rgba(42,33,24,.06)}
+.fc-back{background:linear-gradient(145deg,#EFF9F4,#E0F4EA);border:2px solid rgba(91,168,122,.22);transform:rotateY(180deg)}
+.fc-topic{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;background:rgba(212,113,74,.12);color:var(--terra);margin-bottom:12px}
+.fc-emoji{font-size:46px;margin-bottom:8px}
+.fc-word{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:5px;line-height:1.15}
+.fc-hint{font-size:13px;color:var(--ink2);font-weight:600;text-align:center}
+.fc-tap{font-size:12px;color:var(--ink2);font-weight:700;margin-top:16px;opacity:.65}
+.fc-trans{font-size:22px;font-weight:800;color:var(--ok);text-align:center;margin-bottom:8px}
+.fc-ex{font-size:13px;color:var(--ink);text-align:center;font-style:italic;line-height:1.5;font-family:'Playfair Display',serif;margin-bottom:5px}
+.fc-exes{font-size:12px;color:var(--ink2);text-align:center;font-weight:600}
+.ans-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.btn-wrong{background:linear-gradient(135deg,#FFE9E9,#FFCECE);color:#B03030;font-weight:800;padding:14px;border-radius:13px;border:none;font-family:'Nunito',sans-serif;font-size:14px;cursor:pointer;transition:transform .15s}
+.btn-right{background:linear-gradient(135deg,#E8F7EE,#CCEDDA);color:#1E7040;font-weight:800;padding:14px;border-radius:13px;border:none;font-family:'Nunito',sans-serif;font-size:14px;cursor:pointer;transition:transform .15s}
+.btn-wrong:active,.btn-right:active{transform:scale(.97)}
+.sess-empty{text-align:center;padding:50px 20px}
+.sess-empty .be{font-size:76px;margin-bottom:14px}
+.done-c{background:linear-gradient(145deg,#E8F7EE,#D4F0E0);border:2px solid rgba(91,168,122,.3);border-radius:20px;padding:28px 20px;text-align:center;box-shadow:var(--sh);margin-bottom:12px}
+.done-e{font-size:68px;margin-bottom:12px}
+.done-c h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:5px}
+.res-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.res-b{border-radius:13px;padding:13px;text-align:center}
+.res-b .rn{font-size:30px;font-weight:900}
+.res-b .rl{font-size:12px;font-weight:700;color:var(--ink2)}
+.res-b.ok{background:rgba(91,168,122,.14)}.res-b.ok .rn{color:var(--ok)}
+.res-b.err{background:rgba(206,74,90,.12)}.res-b.err .rn{color:var(--err)}
+
+/* PLAN */
+.wk-card{background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:var(--sh);margin-bottom:10px}
+.wk-hdr{padding:13px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.wk-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.wk-i{flex:1}
+.wk-i h3{font-size:13px;font-weight:800}
+.wk-i p{font-size:11px;color:var(--ink2);font-weight:600}
+.wk-arr{font-size:15px;color:var(--ink2);transition:transform .2s;flex-shrink:0}
+.wk-arr.open{transform:rotate(90deg)}
+.wk-body{display:none;padding:0 14px 12px}
+.wk-body.open{display:block}
+.dy-item{display:flex;gap:10px;padding:7px 0;border-top:1px solid rgba(42,33,24,.05);font-size:12.5px}
+.dy-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.dy-txt{flex:1;line-height:1.4}
+.dy-txt strong{font-weight:800;display:block;font-size:12.5px}
+
+/* VOCAB */
+.vtabs{display:flex;gap:7px;margin-bottom:12px}
+.vt{flex:1;padding:9px 4px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center;background:rgba(42,33,24,.06);color:var(--ink2);line-height:1.3}
+.vt.act{color:white}
+.vt.act.terra{background:var(--terra)}
+.vt.act.blue{background:var(--blue)}
+.vt.act.ok{background:var(--ok)}
+.ff-c{background:var(--paper);border-radius:14px;padding:13px 14px;box-shadow:var(--sh);margin-bottom:10px}
+.ff-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:8px}
+.ff-lang{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.ff-word{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.2}
+.ff-mean{font-size:12px;color:var(--ink2);font-weight:600}
+.ff-arr{font-size:20px;color:var(--ink2)}
+.ff-warn{background:rgba(201,154,46,.12);border-radius:8px;padding:6px 10px;font-size:12px;color:#7A5E0A;font-weight:700;display:flex;gap:6px;line-height:1.4}
+.cog-c{background:var(--paper);border-radius:12px;padding:11px 13px;box-shadow:var(--sh);margin-bottom:8px;display:flex;align-items:center;gap:11px}
+.cog-e{font-size:24px;flex-shrink:0}
+.cog-w{flex:1}
+.cog-it{font-family:'Playfair Display',serif;font-size:16px;font-weight:700}
+.cog-es{font-size:12px;color:var(--ink2);font-weight:600}
+.cog-n{font-size:10px;font-weight:800;padding:3px 7px;border-radius:20px;background:rgba(46,139,87,.11);color:var(--green);flex-shrink:0}
+
+/* GRAMMAR */
+.gram-cat{background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:var(--sh);margin-bottom:10px}
+.gram-hdr{padding:13px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.gram-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.gram-i{flex:1}
+.gram-i h3{font-size:13px;font-weight:800}
+.gram-i p{font-size:11px;color:var(--ink2);font-weight:600}
+.gram-arr{font-size:15px;color:var(--ink2);transition:transform .2s;flex-shrink:0}
+.gram-arr.open{transform:rotate(90deg)}
+.gram-body{display:none;padding:0 14px 14px;border-top:1px solid rgba(42,33,24,.06)}
+.gram-body.open{display:block}
+.gram-section{margin-top:12px}
+.gram-section h4{font-size:13px;font-weight:800;color:var(--terra);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.gram-section p{font-size:12.5px;line-height:1.6;color:var(--ink);font-weight:600;margin-bottom:8px}
+.gram-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.gram-table th{background:rgba(212,113,74,.12);color:var(--terra);font-weight:800;padding:6px 8px;text-align:left;font-size:11px}
+.gram-table td{padding:5px 8px;border-top:1px solid rgba(42,33,24,.06);font-weight:600}
+.gram-table tr:nth-child(even) td{background:rgba(42,33,24,.025)}
+.gram-ex{background:rgba(74,127,181,.08);border-left:3px solid var(--blue);padding:7px 10px;border-radius:0 8px 8px 0;font-size:12.5px;margin:6px 0;line-height:1.5}
+.gram-ex .it{font-family:'Playfair Display',serif;font-style:italic;color:var(--ink);font-size:13px}
+.gram-ex .es{font-size:12px;color:var(--ink2);font-weight:600}
+.gram-tip{background:rgba(91,168,122,.1);border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;color:#1E6040;margin:6px 0;display:flex;gap:6px;line-height:1.4}
+.gram-warn{background:rgba(206,43,55,.08);border-radius:8px;padding:7px 10px;font-size:12px;font-weight:700;color:var(--red);margin:6px 0;display:flex;gap:6px;line-height:1.4}
+.gtag{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:800;background:rgba(74,127,181,.12);color:var(--blue);margin:2px 2px}
+
+/* STATS */
+.ring-w{display:flex;justify-content:center;padding:14px 0}
+.boxes-g{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:12px}
+.bx{background:var(--paper);border-radius:11px;padding:10px 5px;text-align:center;box-shadow:var(--sh)}
+.bx .bn{font-size:18px;font-weight:900;display:block}
+.bx .bl{font-size:10px;color:var(--ink2);font-weight:700;line-height:1.3}
+.acc-c{background:var(--paper);border-radius:14px;padding:13px 14px;box-shadow:var(--sh);margin-bottom:10px}
+.acc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid rgba(42,33,24,.06);font-size:13px}
+.acc-row:first-child{border-top:none;padding-top:0}
+.acc-val{font-weight:900;font-size:15px}
+
+/* SETUP */
+.setup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
+.setup-flag{font-size:76px;margin-bottom:18px;animation:bounce 1.2s infinite}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.setup h1{font-family:'Playfair Display',serif;font-size:25px;font-weight:700;margin-bottom:8px}
+.setup-note{background:linear-gradient(135deg,#FFF3E8,#FFE5CE);border-radius:14px;padding:13px 14px;margin:14px 0;font-size:13px;font-weight:700;color:var(--terra);box-shadow:var(--sh)}
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="hdr">
-    <div class="brand">
-      <div class="brand-ico">◈</div>
-      <div class="brand-name">Planificador</div>
-    </div>
-    <div class="srch">
-      <span class="srch-ico">🔍</span>
-      <input id="si" placeholder="Buscar…" autocomplete="off"/>
-      <div id="sdd" style="display:none" class="srch-dd"></div>
-    </div>
-    <nav class="tabs" id="tabs">
-      <button class="tab on" data-tab="wk">📅 Semana</button>
-      <button class="tab" data-tab="mo">🗓 Mes</button>
-      <button class="tab" data-tab="li">📋 Listas</button>
-    </nav>
-  </header>
-
-  <div id="nb" style="display:none" class="nb">
-    <span>🔔</span><span id="nb-txt">Activar notificaciones</span><span class="nb-arr">→</span>
-  </div>
-
-  <div id="v-wk" style="display:flex;flex-direction:column;flex:1;min-height:0;"></div>
-  <div id="v-mo" style="display:none;overflow-y:auto;flex:1;"></div>
-  <div id="v-li" style="display:none;overflow-y:auto;flex:1;"></div>
-</div>
-
-<button class="fab" id="fab">＋</button>
-
-<div class="ov" id="ov" style="display:none;">
-  <div class="modal"><div class="mh"></div><div id="mb-body"></div></div>
-</div>
-
+<div id="app"></div>
 <script>
-/* ── STORAGE ───────────────────────────────────────────────────────────── */
-const S={
-  g:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},
-  s:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
-};
+// ═══════════════════════════════════════════════════════
+// VOCABULARY DATA (117 cards)
+// ═══════════════════════════════════════════════════════
+const VOCAB = [
+  {id:1,it:"ciao",es:"hola / adiós",ex:"Ciao Maria, come stai?",exes:"Hola María, ¿cómo estás?",topic:"Saluti",w:1,e:"👋"},
+  {id:2,it:"buongiorno",es:"buenos días",ex:"Buongiorno! Come va?",exes:"¡Buenos días! ¿Cómo va?",topic:"Saluti",w:1,e:"🌅"},
+  {id:3,it:"buonasera",es:"buenas tardes/noches",ex:"Buonasera, prego accomodatevi.",exes:"Buenas tardes, por favor siéntense.",topic:"Saluti",w:1,e:"🌆"},
+  {id:4,it:"grazie",es:"gracias",ex:"Grazie mille per l'aiuto!",exes:"¡Muchas gracias por la ayuda!",topic:"Saluti",w:1,e:"🙏"},
+  {id:5,it:"prego",es:"de nada / por favor / adelante",ex:"— Grazie! — Prego!",exes:"— ¡Gracias! — ¡De nada!",topic:"Saluti",w:1,e:"😊"},
+  {id:6,it:"scusa / scusi",es:"perdón / disculpe",ex:"Scusi, dov'è il bagno?",exes:"Disculpe, ¿dónde está el baño?",topic:"Saluti",w:1,e:"🙋"},
+  {id:7,it:"per favore",es:"por favor",ex:"Un caffè, per favore.",exes:"Un café, por favor.",topic:"Basi",w:1,e:"☕"},
+  {id:8,it:"sì / no",es:"sí / no",ex:"Sì, capisco. No, non capisco.",exes:"Sí, entiendo. No, no entiendo.",topic:"Basi",w:1,e:"✅"},
+  {id:9,it:"come stai?",es:"¿cómo estás?",ex:"Ciao! Come stai oggi?",exes:"¡Hola! ¿Cómo estás hoy?",topic:"Basi",w:1,e:"🤔"},
+  {id:10,it:"bene / male",es:"bien / mal",ex:"Sto bene, grazie! E tu?",exes:"Estoy bien, ¡gracias! ¿Y tú?",topic:"Basi",w:1,e:"😄"},
+  {id:11,it:"non capisco",es:"no entiendo",ex:"Mi dispiace, non capisco.",exes:"Lo siento, no entiendo.",topic:"Basi",w:1,e:"😕"},
+  {id:12,it:"mi chiamo...",es:"me llamo...",ex:"Mi chiamo Marco, e tu?",exes:"Me llamo Marco, ¿y tú?",topic:"Basi",w:1,e:"👤"},
+  {id:13,it:"arrivederci",es:"hasta luego / adiós",ex:"Arrivederci a domani!",exes:"¡Hasta mañana!",topic:"Saluti",w:1,e:"🤚"},
+  {id:14,it:"quanto costa?",es:"¿cuánto cuesta?",ex:"Scusi, quanto costa questo?",exes:"Disculpe, ¿cuánto cuesta esto?",topic:"Basi",w:1,e:"💰"},
+  {id:15,it:"dov'è...?",es:"¿dónde está...?",ex:"Dov'è la stazione?",exes:"¿Dónde está la estación?",topic:"Domande",w:1,e:"🗺️"},
+  {id:16,it:"uno, due, tre",es:"uno, dos, tres",ex:"Vorrei tre pizze, per favore.",exes:"Quisiera tres pizzas, por favor.",topic:"Numeri",w:2,e:"1️⃣"},
+  {id:17,it:"quattro, cinque, sei",es:"cuatro, cinco, seis",ex:"La riunione è alle cinque.",exes:"La reunión es a las cinco.",topic:"Numeri",w:2,e:"5️⃣"},
+  {id:18,it:"sette, otto, nove, dieci",es:"siete, ocho, nueve, diez",ex:"Abito al piano otto.",exes:"Vivo en el piso ocho.",topic:"Numeri",w:2,e:"🔢"},
+  {id:19,it:"rosso / blu / verde",es:"rojo / azul / verde",ex:"Ho una macchina rossa.",exes:"Tengo un coche rojo.",topic:"Colori",w:2,e:"🎨"},
+  {id:20,it:"giallo / bianco / nero",es:"amarillo / blanco / negro",ex:"Il mio gatto è nero.",exes:"Mi gato es negro.",topic:"Colori",w:2,e:"⚫"},
+  {id:21,it:"madre / padre",es:"madre / padre",ex:"Mia madre si chiama Anna.",exes:"Mi madre se llama Anna.",topic:"Famiglia",w:2,e:"👩"},
+  {id:22,it:"fratello / sorella",es:"hermano / hermana",ex:"Ho un fratello e due sorelle.",exes:"Tengo un hermano y dos hermanas.",topic:"Famiglia",w:2,e:"👫"},
+  {id:23,it:"figlio / figlia",es:"hijo / hija",ex:"La mia figlia ha dieci anni.",exes:"Mi hija tiene diez años.",topic:"Famiglia",w:2,e:"👶"},
+  {id:24,it:"marito / moglie",es:"marido / esposa",ex:"Mio marito lavora a Milano.",exes:"Mi marido trabaja en Milán.",topic:"Famiglia",w:2,e:"💍"},
+  {id:25,it:"grande / piccolo",es:"grande / pequeño",ex:"Roma è una città grande.",exes:"Roma es una ciudad grande.",topic:"Descrizione",w:2,e:"📏"},
+  {id:26,it:"bello / brutto",es:"bonito / feo",ex:"Che bella giornata oggi!",exes:"¡Qué día tan bonito hoy!",topic:"Descrizione",w:2,e:"✨"},
+  {id:27,it:"vecchio / giovane",es:"viejo / joven",ex:"Questo edificio è molto vecchio.",exes:"Este edificio es muy viejo.",topic:"Descrizione",w:2,e:"👴"},
+  {id:28,it:"quando?",es:"¿cuándo?",ex:"Quando parte il treno?",exes:"¿Cuándo sale el tren?",topic:"Domande",w:2,e:"⏰"},
+  {id:29,it:"chi? / cosa?",es:"¿quién? / ¿qué?",ex:"Chi è questo? Cosa fa?",exes:"¿Quién es este? ¿Qué hace?",topic:"Domande",w:2,e:"❓"},
+  {id:30,it:"come / perché",es:"cómo / por qué",ex:"Come si chiama? Perché studi?",exes:"¿Cómo se llama? ¿Por qué estudias?",topic:"Domande",w:2,e:"🤷"},
+  {id:31,it:"essere",es:"ser / estar",ex:"Sono italiano e sono stanco.",exes:"Soy italiano y estoy cansado.",topic:"Verbi",w:3,e:"⚡"},
+  {id:32,it:"avere",es:"tener / haber",ex:"Ho fame e ho sete.",exes:"Tengo hambre y tengo sed.",topic:"Verbi",w:3,e:"🤲"},
+  {id:33,it:"andare",es:"ir",ex:"Vado al lavoro in treno.",exes:"Voy al trabajo en tren.",topic:"Verbi",w:3,e:"🚶"},
+  {id:34,it:"venire",es:"venir",ex:"Vieni con me stasera?",exes:"¿Vienes conmigo esta noche?",topic:"Verbi",w:3,e:"🏃"},
+  {id:35,it:"fare",es:"hacer",ex:"Cosa fai nel tempo libero?",exes:"¿Qué haces en tu tiempo libre?",topic:"Verbi",w:3,e:"🛠️"},
+  {id:36,it:"dire",es:"decir",ex:"Cosa vuoi dire?",exes:"¿Qué quieres decir?",topic:"Verbi",w:3,e:"💬"},
+  {id:37,it:"potere",es:"poder",ex:"Posso entrare?",exes:"¿Puedo entrar?",topic:"Verbi",w:3,e:"💪"},
+  {id:38,it:"volere",es:"querer",ex:"Voglio imparare l'italiano.",exes:"Quiero aprender italiano.",topic:"Verbi",w:3,e:"❤️"},
+  {id:39,it:"dovere",es:"deber / tener que",ex:"Devo studiare questa sera.",exes:"Tengo que estudiar esta noche.",topic:"Verbi",w:3,e:"📌"},
+  {id:40,it:"sapere",es:"saber",ex:"Sai dove si trova il museo?",exes:"¿Sabes dónde está el museo?",topic:"Verbi",w:3,e:"🧠"},
+  {id:41,it:"parlare",es:"hablar",ex:"Parli spagnolo?",exes:"¿Hablas español?",topic:"Verbi",w:3,e:"🗣️"},
+  {id:42,it:"capire",es:"entender / comprender",ex:"Non capisco, puoi ripetere?",exes:"No entiendo, ¿puedes repetir?",topic:"Verbi",w:3,e:"💡"},
+  {id:43,it:"mangiare",es:"comer",ex:"Cosa mangi a pranzo?",exes:"¿Qué comes en el almuerzo?",topic:"Verbi",w:3,e:"🍽️"},
+  {id:44,it:"bere",es:"beber",ex:"Beviamo un caffè insieme?",exes:"¿Tomamos un café juntos?",topic:"Verbi",w:3,e:"🥂"},
+  {id:45,it:"vedere",es:"ver",ex:"Hai visto quel film?",exes:"¿Has visto esa película?",topic:"Verbi",w:3,e:"👁️"},
+  {id:46,it:"il pane / la pasta / la pizza",es:"el pan / la pasta / la pizza",ex:"In Italia si mangia tanta pasta.",exes:"En Italia se come mucha pasta.",topic:"Cibo",w:4,e:"🍕"},
+  {id:47,it:"la carne / il pesce",es:"la carne / el pescado",ex:"Preferisco il pesce alla carne.",exes:"Prefiero el pescado a la carne.",topic:"Cibo",w:4,e:"🐟"},
+  {id:48,it:"la verdura / la frutta",es:"la verdura / la fruta",ex:"Mangio molta frutta al giorno.",exes:"Como mucha fruta al día.",topic:"Cibo",w:4,e:"🥗"},
+  {id:49,it:"il vino / l'acqua / il caffè",es:"el vino / el agua / el café",ex:"Un vino rosso e un'acqua, grazie.",exes:"Un vino tinto y un agua, gracias.",topic:"Cibo",w:4,e:"🍷"},
+  {id:50,it:"il conto",es:"la cuenta (del restaurante)",ex:"Cameriere, il conto per favore!",exes:"¡Camarero, la cuenta por favor!",topic:"Ristorante",w:4,e:"🧾"},
+  {id:51,it:"vorrei...",es:"quisiera... / me gustaría...",ex:"Vorrei una pasta al pomodoro.",exes:"Quisiera una pasta con tomate.",topic:"Ristorante",w:4,e:"🙋"},
+  {id:52,it:"ho mangiato",es:"he comido / comí",ex:"Ieri ho mangiato una pizza buonissima.",exes:"Ayer comí una pizza deliciosa.",topic:"Passato",w:4,e:"🍴"},
+  {id:53,it:"sono andato/a",es:"he ido / fui",ex:"Sono andato al mare.",exes:"Fui al mar.",topic:"Passato",w:4,e:"🌊"},
+  {id:54,it:"ho fatto",es:"he hecho / hice",ex:"Ho fatto la spesa stamattina.",exes:"Hice la compra esta mañana.",topic:"Passato",w:4,e:"🛒"},
+  {id:55,it:"sono stato/a",es:"he estado / estuve",ex:"Sono stata a Roma la settimana scorsa.",exes:"Estuve en Roma la semana pasada.",topic:"Passato",w:4,e:"🏛️"},
+  {id:56,it:"ho visto / ho detto",es:"he visto / dije",ex:"Ho visto Marco e gli ho detto ciao.",exes:"Vi a Marco y le dije hola.",topic:"Passato",w:4,e:"🎬"},
+  {id:57,it:"ieri / oggi / domani",es:"ayer / hoy / mañana",ex:"Ieri ho lavorato, oggi riposo.",exes:"Ayer trabajé, hoy descanso.",topic:"Tempo",w:4,e:"📅"},
+  {id:58,it:"la settimana scorsa",es:"la semana pasada",ex:"La settimana scorsa sono andato a Milano.",exes:"La semana pasada fui a Milán.",topic:"Tempo",w:4,e:"⏪"},
+  {id:59,it:"il cameriere",es:"el camarero",ex:"Il cameriere ci ha portato il menù.",exes:"El camarero nos trajo el menú.",topic:"Ristorante",w:4,e:"🤵"},
+  {id:60,it:"l'anno scorso / l'anno prossimo",es:"el año pasado / el año que viene",ex:"L'anno scorso sono stato in Italia.",exes:"El año pasado estuve en Italia.",topic:"Tempo",w:4,e:"🗓️"},
+  {id:61,it:"l'aeroporto",es:"el aeropuerto",ex:"Il volo parte dall'aeroporto di Roma.",exes:"El vuelo sale del aeropuerto de Roma.",topic:"Viaggi",w:5,e:"✈️"},
+  {id:62,it:"la stazione",es:"la estación",ex:"La stazione è lontana da qui?",exes:"¿Está lejos la estación de aquí?",topic:"Viaggi",w:5,e:"🚉"},
+  {id:63,it:"il treno / l'autobus",es:"el tren / el autobús",ex:"Prendo il treno alle sette.",exes:"Tomo el tren a las siete.",topic:"Viaggi",w:5,e:"🚆"},
+  {id:64,it:"il biglietto",es:"el billete / la entrada",ex:"Dove posso comprare il biglietto?",exes:"¿Dónde puedo comprar el billete?",topic:"Viaggi",w:5,e:"🎫"},
+  {id:65,it:"la partenza / l'arrivo",es:"la salida / la llegada",ex:"L'arrivo è alle quattordici.",exes:"La llegada es a las catorce.",topic:"Viaggi",w:5,e:"🛫"},
+  {id:66,it:"il ritardo",es:"el retraso",ex:"Il treno ha un ritardo di venti minuti.",exes:"El tren tiene un retraso de veinte minutos.",topic:"Viaggi",w:5,e:"⏱️"},
+  {id:67,it:"l'albergo / la camera ⚠️",es:"el hotel / la habitación",ex:"Ho prenotato una camera all'albergo.",exes:"He reservado una habitación en el hotel.",topic:"Viaggi",w:5,e:"🏨"},
+  {id:68,it:"la prenotazione",es:"la reserva",ex:"Ho una prenotazione a nome Rossi.",exes:"Tengo una reserva a nombre de Rossi.",topic:"Viaggi",w:5,e:"📋"},
+  {id:69,it:"a sinistra / a destra",es:"a la izquierda / a la derecha",ex:"Gira a sinistra al semaforo.",exes:"Gira a la izquierda en el semáforo.",topic:"Orientamento",w:5,e:"↔️"},
+  {id:70,it:"sempre dritto",es:"todo recto",ex:"Vada sempre dritto per 200 metri.",exes:"Siga todo recto 200 metros.",topic:"Orientamento",w:5,e:"⬆️"},
+  {id:71,it:"la piazza / la via",es:"la plaza / la calle",ex:"Ci vediamo in piazza Navona.",exes:"Quedamos en la plaza Navona.",topic:"Città",w:5,e:"🏛️"},
+  {id:72,it:"la farmacia / l'ospedale",es:"la farmacia / el hospital",ex:"C'è una farmacia qui vicino?",exes:"¿Hay una farmacia cerca?",topic:"Città",w:5,e:"💊"},
+  {id:73,it:"il supermercato",es:"el supermercado",ex:"Devo andare al supermercato.",exes:"Tengo que ir al supermercado.",topic:"Città",w:5,e:"🛒"},
+  {id:74,it:"vicino / lontano",es:"cerca / lejos",ex:"Il museo è vicino alla stazione.",exes:"El museo está cerca de la estación.",topic:"Orientamento",w:5,e:"📍"},
+  {id:75,it:"il passaporto / il bagaglio",es:"el pasaporte / el equipaje",ex:"Ho perso il mio bagaglio!",exes:"¡He perdido mi equipaje!",topic:"Viaggi",w:5,e:"🧳"},
+  {id:76,it:"il lavoro",es:"el trabajo",ex:"Come va il lavoro?",exes:"¿Cómo va el trabajo?",topic:"Lavoro",w:6,e:"💼"},
+  {id:77,it:"l'ufficio",es:"la oficina",ex:"Lavoro in ufficio dalle nove.",exes:"Trabajo en la oficina desde las nueve.",topic:"Lavoro",w:6,e:"🏢"},
+  {id:78,it:"la riunione",es:"la reunión",ex:"Ho una riunione importante domani.",exes:"Tengo una reunión importante mañana.",topic:"Lavoro",w:6,e:"👥"},
+  {id:79,it:"il collega / la collega",es:"el/la compañero/a de trabajo",ex:"I miei colleghi sono simpatici.",exes:"Mis compañeros de trabajo son simpáticos.",topic:"Lavoro",w:6,e:"👩‍💼"},
+  {id:80,it:"lo stipendio",es:"el salario / el sueldo",ex:"Il suo stipendio è molto alto.",exes:"Su sueldo es muy alto.",topic:"Lavoro",w:6,e:"💶"},
+  {id:81,it:"il capo",es:"el jefe",ex:"Il mio capo è molto esigente.",exes:"Mi jefe es muy exigente.",topic:"Lavoro",w:6,e:"👔"},
+  {id:82,it:"di mattina / di sera",es:"por la mañana / por la noche",ex:"Di mattina faccio sport.",exes:"Por la mañana hago deporte.",topic:"Routine",w:6,e:"🕐"},
+  {id:83,it:"di solito",es:"normalmente / por lo general",ex:"Di solito mi alzo alle sette.",exes:"Normalmente me levanto a las siete.",topic:"Routine",w:6,e:"🔄"},
+  {id:84,it:"mi alzo / mi sveglio",es:"me levanto / me despierto",ex:"Mi sveglio sempre alle sei.",exes:"Siempre me despierto a las seis.",topic:"Routine",w:6,e:"⏰"},
+  {id:85,it:"la casa / l'appartamento",es:"la casa / el apartamento",ex:"Il mio appartamento è al terzo piano.",exes:"Mi apartamento está en el tercer piso.",topic:"Casa",w:6,e:"🏠"},
+  {id:86,it:"la cucina / il salotto",es:"la cocina / el salón",ex:"La cucina è piccola ma funzionale.",exes:"La cocina es pequeña pero funcional.",topic:"Casa",w:6,e:"🛋️"},
+  {id:87,it:"fare la spesa",es:"hacer la compra",ex:"Ogni sabato faccio la spesa.",exes:"Cada sábado hago la compra.",topic:"Routine",w:6,e:"🛍️"},
+  {id:88,it:"il fine settimana",es:"el fin de semana",ex:"Cosa fai questo fine settimana?",exes:"¿Qué haces este fin de semana?",topic:"Tempo",w:6,e:"🎉"},
+  {id:89,it:"adesso / subito ⚠️",es:"ahora / enseguida",ex:"Vengo subito, aspetta!",exes:"Voy enseguida, ¡espera!",topic:"Tempo",w:6,e:"⚡"},
+  {id:90,it:"spesso / qualche volta / mai",es:"a menudo / a veces / nunca",ex:"Non vado mai al cinema da solo.",exes:"Nunca voy al cine solo.",topic:"Frequenza",w:6,e:"📊"},
+  {id:91,it:"penso che... / credo che...",es:"pienso que... / creo que...",ex:"Penso che sia una buona idea.",exes:"Pienso que es una buena idea.",topic:"Opinioni",w:7,e:"💭"},
+  {id:92,it:"secondo me",es:"según yo / en mi opinión",ex:"Secondo me, hai ragione.",exes:"En mi opinión, tienes razón.",topic:"Opinioni",w:7,e:"🤔"},
+  {id:93,it:"sono d'accordo",es:"estoy de acuerdo",ex:"Sì, sono completamente d'accordo.",exes:"Sí, estoy completamente de acuerdo.",topic:"Opinioni",w:7,e:"✅"},
+  {id:94,it:"hai ragione / hai torto",es:"tienes razón / estás equivocado",ex:"Hai ragione, mi dispiace.",exes:"Tienes razón, lo siento.",topic:"Opinioni",w:7,e:"⚖️"},
+  {id:95,it:"mi piace / non mi piace",es:"me gusta / no me gusta",ex:"Mi piace molto la musica italiana.",exes:"Me gusta mucho la música italiana.",topic:"Preferenze",w:7,e:"❤️"},
+  {id:96,it:"preferisco",es:"prefiero",ex:"Preferisco il caffè al tè.",exes:"Prefiero el café al té.",topic:"Preferenze",w:7,e:"☕"},
+  {id:97,it:"sono contento/a",es:"estoy contento/a",ex:"Sono molto contenta di vederti!",exes:"¡Estoy muy contenta de verte!",topic:"Emozioni",w:7,e:"😊"},
+  {id:98,it:"sono stanco/a",es:"estoy cansado/a",ex:"Sono stanchissimo dopo il lavoro.",exes:"Estoy agotado después del trabajo.",topic:"Emozioni",w:7,e:"😴"},
+  {id:99,it:"ho paura",es:"tengo miedo",ex:"Ho paura degli esami.",exes:"Tengo miedo de los exámenes.",topic:"Emozioni",w:7,e:"😨"},
+  {id:100,it:"ho voglia di...",es:"tengo ganas de...",ex:"Ho voglia di una pizza!",exes:"¡Tengo ganas de una pizza!",topic:"Emozioni",w:7,e:"🤤"},
+  {id:101,it:"mi dispiace",es:"lo siento / me sabe mal",ex:"Mi dispiace molto per il ritardo.",exes:"Lo siento mucho por el retraso.",topic:"Emozioni",w:7,e:"😔"},
+  {id:102,it:"per fortuna / purtroppo",es:"por suerte / desgraciadamente",ex:"Purtroppo non posso venire.",exes:"Desgraciadamente no puedo venir.",topic:"Connettori",w:7,e:"🍀"},
+  {id:103,it:"però / ma",es:"pero / sin embargo",ex:"Mi piace, però è troppo caro.",exes:"Me gusta, pero es demasiado caro.",topic:"Connettori",w:7,e:"🔗"},
+  {id:104,it:"quindi / allora",es:"entonces / por lo tanto",ex:"Non c'è posto, quindi andiamo altrove.",exes:"No hay sitio, entonces vamos a otro lugar.",topic:"Connettori",w:7,e:"➡️"},
+  {id:105,it:"anche se",es:"aunque",ex:"Esco anche se piove.",exes:"Salgo aunque llueva.",topic:"Connettori",w:7,e:"🌂"},
+  {id:106,it:"bisogna che...",es:"es necesario que...",ex:"Bisogna che tu studi di più.",exes:"Es necesario que estudies más.",topic:"Congiuntivo",w:8,e:"📚"},
+  {id:107,it:"è importante che...",es:"es importante que...",ex:"È importante che tu sia puntuale.",exes:"Es importante que seas puntual.",topic:"Congiuntivo",w:8,e:"⭐"},
+  {id:108,it:"sebbene / benché",es:"aunque (+ subjuntivo)",ex:"Sebbene sia stanco, continuo a lavorare.",exes:"Aunque esté cansado, sigo trabajando.",topic:"Congiuntivo",w:8,e:"🔄"},
+  {id:109,it:"prima che...",es:"antes de que...",ex:"Chiamami prima che parta.",exes:"Llámame antes de que salgas.",topic:"Congiuntivo",w:8,e:"⏰"},
+  {id:110,it:"nonostante",es:"a pesar de que",ex:"Nonostante la pioggia, siamo usciti.",exes:"A pesar de la lluvia, salimos.",topic:"Congiuntivo",w:8,e:"☔"},
+  {id:111,it:"vorrei (condizionale)",es:"quisiera / me gustaría",ex:"Vorrei prenotare un tavolo per due.",exes:"Quisiera reservar una mesa para dos.",topic:"Condizionale",w:8,e:"💫"},
+  {id:112,it:"se potessi...",es:"si pudiera...",ex:"Se potessi, viaggerei ogni giorno.",exes:"Si pudiera, viajaría cada día.",topic:"Condizionale",w:8,e:"✨"},
+  {id:113,it:"da quanto tempo...?",es:"¿desde hace cuánto tiempo...?",ex:"Da quanto tempo studi l'italiano?",exes:"¿Desde hace cuánto tiempo estudias italiano?",topic:"B1",w:8,e:"⏳"},
+  {id:114,it:"in realtà / in effetti",es:"en realidad / de hecho",ex:"In realtà, la situazione è più complessa.",exes:"En realidad, la situación es más compleja.",topic:"B1",w:8,e:"💡"},
+  {id:115,it:"è possibile che...",es:"es posible que...",ex:"È possibile che arrivi tardi.",exes:"Es posible que llegue tarde.",topic:"Congiuntivo",w:8,e:"🎲"},
+  {id:116,it:"mi puoi aiutare?",es:"¿me puedes ayudar?",ex:"Mi puoi aiutare con questo problema?",exes:"¿Me puedes ayudar con este problema?",topic:"B1",w:8,e:"🤝"},
+  {id:117,it:"sto imparando",es:"estoy aprendiendo",ex:"Sto imparando l'italiano da due mesi.",exes:"Llevo dos meses aprendiendo italiano.",topic:"B1",w:8,e:"🎓"},
+];
 
-/* ── STATE ─────────────────────────────────────────────────────────────── */
-let evs=S.g('pl3-evs',[]);
-let lists=S.g('pl3-lists',[]);
-let curTab='wk';
-let wkMon=getMon(new Date());
-let curMo={y:new Date().getFullYear(),m:new Date().getMonth()};
-let activeList=null;
-const save=()=>{S.s('pl3-evs',evs);S.s('pl3-lists',lists);};
+const FF = [
+  {it:"burro",im:"mantequilla 🧈",es:"burro",em:"asno, jumento 🫏",w:"«Vorrei del burro» = quiero mantequilla, ¡no un burro!",e:"🧈"},
+  {it:"camera",im:"habitación 🛏️",es:"cámara",em:"cámara de foto/vídeo 📷",w:"«Una camera singola» = una habitación individual en el hotel.",e:"🛏️"},
+  {it:"largo",im:"ancho, amplio ↔️",es:"largo",em:"long, de gran longitud ↕️",w:"En italiano «lungo» = largo. «Largo» = ancho/amplio.",e:"↔️"},
+  {it:"pronto",im:"¡listo! / ¡diga! (al teléfono) 📞",es:"pronto",em:"soon, enseguida ⚡",w:"Al coger el teléfono en Italia se dice «Pronto!» = ¡Diga!",e:"📞"},
+  {it:"guardare",im:"mirar, ver 👁️",es:"guardar",em:"to save, to keep 💾",w:"«Guarda!» = ¡Mira! No tiene nada que ver con guardar algo.",e:"👁️"},
+  {it:"salire",im:"subir ⬆️",es:"salir",em:"to go out, salir 🚪",w:"¡Confusión total! «Salire» = subir. Para salir: «uscire».",e:"⬆️"},
+  {it:"uscire",im:"salir (de un lugar) 🚪",es:"(no existe)",em:"—",w:"«Esco» = salgo. Recuerda: salire≠salir; uscire=salir. ¡Al revés!",e:"🚪"},
+  {it:"sensibile",im:"sensible, sensitivo 💔",es:"sensible",em:"razonable, sensato 🧠",w:"Misma forma, significado distinto. En esp. 'sensible' = sensitivo en italiano.",e:"💔"},
+  {it:"attuale",im:"actual, presente, de ahora 📰",es:"actual",em:"real, verdadero ✔️",w:"«La situazione attuale» = la situación de ahora. En esp. 'actual' = real.",e:"📰"},
+  {it:"illuso",im:"ingenuo, que se engaña 🙈",es:"ilusionado",em:"excited, con ilusión 💫",w:"«Sei un illuso» = eres un ingenuo. ≠ ilusionado (emocionado).",e:"💭"},
+  {it:"deluso",im:"decepcionado 😞",es:"delusional (EN)",em:"—",w:"«Sono deluso» = estoy decepcionado/desilusionado.",e:"😞"},
+  {it:"morbido",im:"suave, blando, tierno 🧸",es:"mórbido",em:"morbid, malsano ☠️",w:"«Questo pane è morbido» = este pan está tierno. No tiene connotación negativa.",e:"🧸"},
+  {it:"subito",im:"enseguida, inmediatamente ⚡",es:"subido",em:"past part. de 'subir' 🔼",w:"«Vengo subito!» = ¡Voy enseguida! Nada que ver con 'subido'.",e:"⚡"},
+  {it:"caldo",im:"caliente (adj.) 🌡️ / el calor",es:"caldo",em:"broth, sopa 🍲",w:"En italiano 'caldo' es adjetivo (=caliente). Para sopa: «il brodo».",e:"🌡️"},
+  {it:"casino",im:"lío, caos (coloquial) 🎰",es:"casino",em:"gambling house 🎰",w:"«Che casino!» = ¡Qué lío/caos! (muy coloquial en italiano).",e:"🎰"},
+  {it:"accidente!",im:"¡maldita sea! (exclamación) 😤",es:"accidente",em:"accident 🚗",w:"Para 'accidente' en italiano: «incidente». «Accidente!» = ¡Caramba!",e:"💢"},
+  {it:"parente ✅",im:"familiar, pariente 👨‍👩‍👧",es:"pariente",em:"relative ✅",w:"¡Verdadero amigo! Parente = pariente. Idéntico.",e:"✅"},
+  {it:"libreria ✅",im:"librería (tienda de libros) 📚",es:"librería",em:"bookstore ✅",w:"¡Coincide! Libreria = librería. (En inglés 'library' = biblioteca).",e:"✅"},
+  {it:"perdere ✅",im:"perder 🔑",es:"perder",em:"to lose ✅",w:"¡Igual que en español! 'Ho perso le chiavi' = Perdí las llaves.",e:"✅"},
+  {it:"firma",im:"firma/empresa (también: firma = firma)",es:"firma",em:"signature, firma",w:"Curioso: 'firma' en italiano puede ser 'empresa'. La firma (signature) = igual.",e:"✍️"},
+];
 
-/* ── CONSTANTS ─────────────────────────────────────────────────────────── */
-const HH=64, GS=7, GE=23;
-const HOURS=Array.from({length:GE-GS},(_,i)=>GS+i);
-const MONTHS=['Enero','Feb','Marzo','Abril','Mayo','Junio','Julio','Agosto','Sep','Octubre','Nov','Diciembre'];
-const MONTHS_S=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const WD=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
-const WDF=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-const COLORS=['#7c6ff0','#ff5f7e','#ff9340','#3ecf8e','#38c9f5','#f472b6','#a78bfa','#fbbf24'];
-const PRIO=[{v:'alta',l:'Alta',c:'#ff5f7e',i:'▲'},{v:'media',l:'Media',c:'#ff9340',i:'●'},{v:'baja',l:'Baja',c:'#38c9f5',i:'▼'}];
-const RECUR=[{v:'none',l:'No repite'},{v:'daily',l:'↻ Diaria'},{v:'weekly',l:'↻ Semanal'},{v:'monthly',l:'↻ Mensual'}];
-const RTIMED=[{v:5,l:'5 min'},{v:10,l:'10 min'},{v:15,l:'15 min'},{v:30,l:'30 min'},{v:60,l:'1 hora'},{v:120,l:'2 h'}];
-const RDAY=[{v:0,l:'Mismo día'},{v:1,l:'1 día antes'},{v:2,l:'2 días'},{v:3,l:'3 días'},{v:7,l:'1 semana'}];
+const COG = [
+  {it:"la musica",es:"la música",e:"🎵",n:"Idéntico"},
+  {it:"l'arte",es:"el arte",e:"🎨",n:"Casi idéntico"},
+  {it:"la cultura",es:"la cultura",e:"🏛️",n:"Idéntico"},
+  {it:"la natura",es:"la naturaleza",e:"🌿",n:"Reconocible"},
+  {it:"la temperatura",es:"la temperatura",e:"🌡️",n:"Idéntico"},
+  {it:"la medicina",es:"la medicina",e:"💊",n:"Idéntico"},
+  {it:"l'economia",es:"la economía",e:"📈",n:"Casi idéntico"},
+  {it:"la politica",es:"la política",e:"🏛️",n:"Casi idéntico"},
+  {it:"la storia",es:"la historia",e:"📜",n:"Fácil de recordar"},
+  {it:"la tecnologia",es:"la tecnología",e:"💻",n:"Casi idéntico"},
+  {it:"l'informazione",es:"la información",e:"ℹ️",n:"-ción → -zione"},
+  {it:"la comunicazione",es:"la comunicación",e:"📡",n:"-ción → -zione"},
+  {it:"la televisione",es:"la televisión",e:"📺",n:"-ión → -ione"},
+  {it:"il telefono",es:"el teléfono",e:"📱",n:"Idéntico"},
+  {it:"il problema",es:"el problema",e:"❓",n:"Idéntico (masc.)"},
+  {it:"il programma",es:"el programa",e:"📋",n:"Casi idéntico"},
+  {it:"il documento",es:"el documento",e:"📄",n:"Idéntico"},
+  {it:"il teatro",es:"el teatro",e:"🎭",n:"Idéntico"},
+  {it:"il calcio",es:"el fútbol ⚽",e:"⚽",n:"Calcio = fútbol en Italia"},
+  {it:"l'università",es:"la universidad",e:"🎓",n:"Casi idéntico"},
+  {it:"il momento",es:"el momento",e:"⏱️",n:"Idéntico"},
+  {it:"il silenzio",es:"el silencio",e:"🤫",n:"Casi idéntico"},
+  {it:"la famiglia",es:"la familia",e:"👨‍👩‍👧‍👦",n:"Casi idéntico"},
+  {it:"la piazza",es:"la plaza",e:"🏛️",n:"Reconocible"},
+  {it:"il viaggio",es:"el viaje",e:"✈️",n:"Diferente pero reconocible"},
+];
 
-/* ── UTILS ─────────────────────────────────────────────────────────────── */
-const uid=()=>Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
-const pad=n=>String(n).padStart(2,'0');
-const ymd=d=>d instanceof Date?`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`:d;
-const today=()=>ymd(new Date());
-const dU=s=>Math.ceil((new Date(s+'T12:00:00')-new Date(today()+'T12:00:00'))/86400000);
-function getMon(d){const wd=d.getDay(),diff=wd===0?-6:1-wd,r=new Date(d);r.setDate(r.getDate()+diff);r.setHours(0,0,0,0);return r;}
-function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function wkDays(mon){return Array.from({length:7},(_,i)=>addDays(mon,i));}
-const mDays=(y,m)=>new Date(y,m+1,0).getDate();
-const fWD=(y,m)=>{const d=new Date(y,m,1).getDay();return d===0?6:d-1;};
-const t2y=t=>{const[h,m]=t.split(':').map(Number);return((h*60+m)-GS*60)/60*HH;};
-const durH=(s,e)=>{const[sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);return Math.max(((eh*60+em)-(sh*60+sm))/60*HH,26);};
-const nowY=()=>{const n=new Date();return((n.getHours()*60+n.getMinutes())-GS*60)/60*HH;};
-const tMins=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
-const fmtT=t=>{const[h,m]=t.split(':').map(Number);return `${h>12?h-12:h===0?12:h}:${pad(m)}${h>=12?'pm':'am'}`;};
-function nextRec(s,r){const d=new Date(s+'T12:00:00');if(r==='daily')d.setDate(d.getDate()+1);if(r==='weekly')d.setDate(d.getDate()+7);if(r==='monthly')d.setMonth(d.getMonth()+1);return ymd(d);}
-function mk(tag,cls='',html='',sty=''){const e=document.createElement(tag);if(cls)e.className=cls;if(html)e.innerHTML=html;if(sty)e.style.cssText=sty;return e;}
+// ═══════════════════════════════════════════════════════
+// GRAMMAR DATA — teoría B1 completa
+// ═══════════════════════════════════════════════════════
+const GRAMMAR = [
+  {
+    id:"art", e:"📰", title:"Artículos", sub:"Definidos · Indefinidos · Partitivos",
+    color:"#D4714A", bg:"rgba(212,113,74,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Artículos definidos — il, lo, la, i, gli, le</h4>
+      <p>Equivalen a "el, la, los, las". La elección depende del género, número y la consonante inicial.</p>
+      <table class="gram-table"><thead><tr><th>Contexto</th><th>Masculino</th><th>Femenino</th></tr></thead>
+      <tbody>
+        <tr><td>Sing. normal</td><td><strong>il</strong> libro</td><td><strong>la</strong> casa</td></tr>
+        <tr><td>Sing. ante s+cons., z, gn, ps</td><td><strong>lo</strong> studente</td><td><strong>la</strong> (igual)</td></tr>
+        <tr><td>Sing. ante vocal</td><td><strong>l'</strong>amico</td><td><strong>l'</strong>amica</td></tr>
+        <tr><td>Plural normal</td><td><strong>i</strong> libri</td><td><strong>le</strong> case</td></tr>
+        <tr><td>Plural ante s+cons., z...</td><td><strong>gli</strong> studenti</td><td><strong>le</strong> (igual)</td></tr>
+        <tr><td>Plural ante vocal</td><td><strong>gli</strong> amici</td><td><strong>le</strong> amiche</td></tr>
+      </tbody></table>
+      <div class="gram-tip">💡 Regla de oro: si en español dirías "el", en italiano probablemente es "il". Si la palabra empieza por vocal, usa l'.</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Artículos indefinidos — un, uno, una, un'</h4>
+      <table class="gram-table"><thead><tr><th>Contexto</th><th>Masculino</th><th>Femenino</th></tr></thead>
+      <tbody>
+        <tr><td>Normal</td><td><strong>un</strong> libro</td><td><strong>una</strong> casa</td></tr>
+        <tr><td>Ante s+cons., z, gn</td><td><strong>uno</strong> studente</td><td><strong>una</strong> (igual)</td></tr>
+        <tr><td>Ante vocal</td><td><strong>un</strong> amico</td><td><strong>un'</strong>amica</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Artículos partitivos — del, dello, della...</h4>
+      <p>Se forman con <strong>di + artículo definido</strong>. Equivalen a "algo de, un poco de".</p>
+      <div class="gram-ex"><div class="it">Vorrei del pane e della frutta.</div><div class="es">Quisiera un poco de pan y fruta.</div></div>
+      <div class="gram-ex"><div class="it">Hai degli amici italiani?</div><div class="es">¿Tienes amigos italianos?</div></div>
+    </div>
+    `
+  },
+  {
+    id:"nom", e:"🔤", title:"Sustantivos y género", sub:"Géneros · Plurales · Irregulares",
+    color:"#4A7FB5", bg:"rgba(74,127,181,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Género de los sustantivos</h4>
+      <p>En italiano todos los sustantivos tienen género (masculino o femenino). Las terminaciones más frecuentes:</p>
+      <table class="gram-table"><thead><tr><th>Terminación</th><th>Género habitual</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>-o</td><td>Masculino</td><td>il libro, il vino</td></tr>
+        <tr><td>-a</td><td>Femenino</td><td>la casa, la pasta</td></tr>
+        <tr><td>-e</td><td>Ambos (¡memorizar!)</td><td>il pane, la notte</td></tr>
+        <tr><td>-ione</td><td>Femenino</td><td>la stazione, la nazione</td></tr>
+        <tr><td>-ità / -tà</td><td>Femenino</td><td>la città, la libertà</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Formación del plural</h4>
+      <table class="gram-table"><thead><tr><th>Singular</th><th>Plural</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>-o (masc.)</td><td>-i</td><td>libro → libri</td></tr>
+        <tr><td>-a (fem.)</td><td>-e</td><td>casa → case</td></tr>
+        <tr><td>-e (ambos)</td><td>-i</td><td>pane → pani / notte → notti</td></tr>
+        <tr><td>-ca / -ga</td><td>-che / -ghe</td><td>amica → amiche</td></tr>
+        <tr><td>-co / -go</td><td>-chi / -ghi (o -ci/-gi)</td><td>amico → amici</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Algunos plurales irregulares frecuentes: uomo → uomini, mano → mani, uovo → uova</div>
+    </div>
+    `
+  },
+  {
+    id:"adj", e:"✨", title:"Adjetivos", sub:"Concordancia · Posición · Comparativo",
+    color:"#2E8B57", bg:"rgba(46,139,87,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Concordancia del adjetivo</h4>
+      <p>Los adjetivos concuerdan en género y número con el sustantivo al que acompañan. Igual que en español.</p>
+      <table class="gram-table"><thead><tr><th></th><th>Masculino</th><th>Femenino</th></tr></thead>
+      <tbody>
+        <tr><td>Singular</td><td>bello, grande</td><td>bella, grande</td></tr>
+        <tr><td>Plural</td><td>belli, grandi</td><td>belle, grandi</td></tr>
+      </tbody></table>
+      <div class="gram-ex"><div class="it">Un libro interessante · Due libri interessanti</div><div class="es">Un libro interesante · Dos libros interesantes</div></div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Posición del adjetivo</h4>
+      <p>Generalmente va <strong>después</strong> del sustantivo (a diferencia del español).</p>
+      <div class="gram-ex"><div class="it">Una casa bella → ✅ normale · Una bella casa → ✅ enfático</div><div class="es">Una casa bonita / Una bonita casa</div></div>
+      <div class="gram-tip">💡 Algunos adjetivos cambian de significado según la posición: un uomo grande (un hombre grande/alto) vs. un grand'uomo (un gran hombre/notable)</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Comparativo y superlativo</h4>
+      <table class="gram-table"><thead><tr><th>Tipo</th><th>Forma</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Comparativo superioridad</td><td>più... di/che</td><td>Marco è più alto di Luca</td></tr>
+        <tr><td>Comparativo igualdad</td><td>così... come / tanto... quanto</td><td>Sono così stanca come te</td></tr>
+        <tr><td>Comparativo inferioridad</td><td>meno... di/che</td><td>È meno caro di quello</td></tr>
+        <tr><td>Superlativo relativo</td><td>il più... / la più...</td><td>È il più bello della classe</td></tr>
+        <tr><td>Superlativo absoluto</td><td>-issimo/a</td><td>bellissimo, buonissimo</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Irregulares frecuentes: buono → migliore / ottimo · cattivo → peggiore / pessimo · grande → maggiore / massimo · piccolo → minore / minimo</div>
+    </div>
+    `
+  },
+  {
+    id:"pron", e:"👆", title:"Pronombres", sub:"Personales · Directos · Indirectos · Reflexivos",
+    color:"#CE2B37", bg:"rgba(206,43,55,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Pronombres personales sujeto</h4>
+      <table class="gram-table"><thead><tr><th>Español</th><th>Italiano</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td>yo</td><td>io</td><td>Generalmente se omite</td></tr>
+        <tr><td>tú</td><td>tu</td><td>Uso informal</td></tr>
+        <tr><td>él / ella</td><td>lui / lei</td><td>Lei también = usted formal</td></tr>
+        <tr><td>nosotros</td><td>noi</td><td></td></tr>
+        <tr><td>vosotros</td><td>voi</td><td></td></tr>
+        <tr><td>ellos / ellas</td><td>loro</td><td></td></tr>
+      </tbody></table>
+      <div class="gram-tip">💡 En italiano el sujeto pronominal se omite habitualmente porque la conjugación verbal ya lo indica. Se usa para énfasis: «Io non lo faccio!» = ¡Yo no lo hago!</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Pronombres de objeto directo (CD)</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>Pronombre</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>me</td><td>mi</td><td>Marco mi chiama</td></tr>
+        <tr><td>te</td><td>ti</td><td>Ti vedo domani</td></tr>
+        <tr><td>lo / la</td><td>lo / la</td><td>Lo compro · La chiamo</td></tr>
+        <tr><td>nos</td><td>ci</td><td>Ci invita alla festa</td></tr>
+        <tr><td>os</td><td>vi</td><td>Vi aspetto qui</td></tr>
+        <tr><td>los / las</td><td>li / le</td><td>Li vedo · Le chiamo</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Pronombres de objeto indirecto (CI)</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>Pronombre</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>me</td><td>mi</td><td>Mi dai il libro?</td></tr>
+        <tr><td>te</td><td>ti</td><td>Ti mando un messaggio</td></tr>
+        <tr><td>le / gli</td><td>le (a lei) · gli (a lui)</td><td>Gli parlo · Le scrivo</td></tr>
+        <tr><td>nos</td><td>ci</td><td>Ci telefona</td></tr>
+        <tr><td>os</td><td>vi</td><td>Vi mando tutto</td></tr>
+        <tr><td>les</td><td>loro / gli</td><td>Gli scrivo (coloquial)</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Posición: los pronombres van ANTES del verbo conjugado. «Lo mangio» · «Le telefono». Con infinitivo van detrás: «Voglio vederlo» · «Devo parlarle»</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Pronombres reflexivos</h4>
+      <p>Usados con verbos reflexivos (alzarsi, lavarsi, vestirsi...)</p>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>Pronombre</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>mi</td><td>Mi sveglio alle 7</td></tr>
+        <tr><td>tu</td><td>ti</td><td>Ti lavi le mani</td></tr>
+        <tr><td>lui/lei</td><td>si</td><td>Si alza tardi</td></tr>
+        <tr><td>noi</td><td>ci</td><td>Ci vestiamo</td></tr>
+        <tr><td>voi</td><td>vi</td><td>Vi divertite</td></tr>
+        <tr><td>loro</td><td>si</td><td>Si siedono</td></tr>
+      </tbody></table>
+    </div>
+    `
+  },
+  {
+    id:"pres", e:"⚡", title:"Presente indicativo", sub:"Regulares · Irregulares · Modales",
+    color:"#C99A2E", bg:"rgba(201,154,46,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Verbos regulares — tres conjugaciones</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>-ARE (parlare)</th><th>-ERE (vedere)</th><th>-IRE (dormire)</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>parl<strong>o</strong></td><td>ved<strong>o</strong></td><td>dorm<strong>o</strong></td></tr>
+        <tr><td>tu</td><td>parl<strong>i</strong></td><td>ved<strong>i</strong></td><td>dorm<strong>i</strong></td></tr>
+        <tr><td>lui/lei</td><td>parl<strong>a</strong></td><td>ved<strong>e</strong></td><td>dorm<strong>e</strong></td></tr>
+        <tr><td>noi</td><td>parl<strong>iamo</strong></td><td>ved<strong>iamo</strong></td><td>dorm<strong>iamo</strong></td></tr>
+        <tr><td>voi</td><td>parl<strong>ate</strong></td><td>ved<strong>ete</strong></td><td>dorm<strong>ite</strong></td></tr>
+        <tr><td>loro</td><td>parl<strong>ano</strong></td><td>ved<strong>ono</strong></td><td>dorm<strong>ono</strong></td></tr>
+      </tbody></table>
+      <div class="gram-tip">💡 Los verbos -IRE tipo capire/finire usan -isco: io capisco, tu capisci, lui capisce, loro capiscono. Los de noi/voi son regulares: capiamo, capite.</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Verbos irregulares esenciales</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>essere</th><th>avere</th><th>andare</th><th>fare</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>sono</td><td>ho</td><td>vado</td><td>faccio</td></tr>
+        <tr><td>tu</td><td>sei</td><td>hai</td><td>vai</td><td>fai</td></tr>
+        <tr><td>lui/lei</td><td>è</td><td>ha</td><td>va</td><td>fa</td></tr>
+        <tr><td>noi</td><td>siamo</td><td>abbiamo</td><td>andiamo</td><td>facciamo</td></tr>
+        <tr><td>voi</td><td>siete</td><td>avete</td><td>andate</td><td>fate</td></tr>
+        <tr><td>loro</td><td>sono</td><td>hanno</td><td>vanno</td><td>fanno</td></tr>
+      </tbody></table>
+      <table class="gram-table" style="margin-top:8px"><thead><tr><th>Persona</th><th>venire</th><th>dire</th><th>dovere</th><th>potere</th><th>volere</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>vengo</td><td>dico</td><td>devo</td><td>posso</td><td>voglio</td></tr>
+        <tr><td>tu</td><td>vieni</td><td>dici</td><td>devi</td><td>puoi</td><td>vuoi</td></tr>
+        <tr><td>lui/lei</td><td>viene</td><td>dice</td><td>deve</td><td>può</td><td>vuole</td></tr>
+        <tr><td>noi</td><td>veniamo</td><td>diciamo</td><td>dobbiamo</td><td>possiamo</td><td>vogliamo</td></tr>
+        <tr><td>voi</td><td>venite</td><td>dite</td><td>dovete</td><td>potete</td><td>volete</td></tr>
+        <tr><td>loro</td><td>vengono</td><td>dicono</td><td>devono</td><td>possono</td><td>vogliono</td></tr>
+      </tbody></table>
+    </div>
+    `
+  },
+  {
+    id:"pass", e:"⏮️", title:"Passato prossimo", sub:"El pasado compuesto italiano",
+    color:"#7A5F9E", bg:"rgba(122,95,158,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Estructura</h4>
+      <p><strong>avere / essere (presente) + participio pasado</strong></p>
+      <div class="gram-ex"><div class="it">Ho mangiato una pizza. · Sono andato al mare.</div><div class="es">Comí una pizza. · Fui al mar.</div></div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 ¿Cuándo usar AVERE y cuándo ESSERE?</h4>
+      <table class="gram-table"><thead><tr><th>Auxiliar</th><th>Cuándo</th><th>Ejemplos</th></tr></thead>
+      <tbody>
+        <tr><td><strong>AVERE</strong></td><td>La mayoría de verbos transitivos (tienen CD)</td><td>mangiare, vedere, fare, dire, comprare...</td></tr>
+        <tr><td><strong>ESSERE</strong></td><td>Verbos de movimiento, cambio de estado, reflexivos</td><td>andare, venire, arrivare, partire, nascere, morire, essere, stare...</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Con ESSERE, el participio concuerda con el sujeto: Marco è andato · Maria è andata · Siamo andati · Sono andate</div>
+      <div class="gram-tip">💡 Truco: si el verbo puede llevar un "lo/la" delante (lo ho mangiato), usa AVERE. Si no (sono andato), usa ESSERE.</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Participios irregulares frecuentes</h4>
+      <table class="gram-table"><thead><tr><th>Infinitivo</th><th>Participio</th><th>Infinitivo</th><th>Participio</th></tr></thead>
+      <tbody>
+        <tr><td>essere</td><td>stato</td><td>fare</td><td>fatto</td></tr>
+        <tr><td>avere</td><td>avuto</td><td>dire</td><td>detto</td></tr>
+        <tr><td>vedere</td><td>visto</td><td>scrivere</td><td>scritto</td></tr>
+        <tr><td>leggere</td><td>letto</td><td>aprire</td><td>aperto</td></tr>
+        <tr><td>prendere</td><td>preso</td><td>venire</td><td>venuto</td></tr>
+        <tr><td>mettere</td><td>messo</td><td>nascere</td><td>nato</td></tr>
+      </tbody></table>
+    </div>
+    `
+  },
+  {
+    id:"imp", e:"🎞️", title:"Imperfetto", sub:"Acciones habituales y descriptivas en pasado",
+    color:"#D4714A", bg:"rgba(212,113,74,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Usos del imperfetto</h4>
+      <p>El imperfecto italiano es casi idéntico al español. Se usa para:</p>
+      <table class="gram-table"><thead><tr><th>Uso</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Acción habitual en el pasado</td><td>Da bambino mangiavo molto. (De niño comía mucho)</td></tr>
+        <tr><td>Descripción en el pasado</td><td>Era una bella giornata. (Era un día bonito)</td></tr>
+        <tr><td>Acción en progreso interrumpida</td><td>Dormivo quando ha chiamato. (Dormía cuando llamó)</td></tr>
+        <tr><td>Estado o condición pasada</td><td>Avevo vent'anni. (Tenía veinte años)</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Conjugación del imperfetto</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>parlare</th><th>vedere</th><th>dormire</th><th>essere</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>parlavo</td><td>vedevo</td><td>dormivo</td><td>ero</td></tr>
+        <tr><td>tu</td><td>parlavi</td><td>vedevi</td><td>dormivi</td><td>eri</td></tr>
+        <tr><td>lui/lei</td><td>parlava</td><td>vedeva</td><td>dormiva</td><td>era</td></tr>
+        <tr><td>noi</td><td>parlavamo</td><td>vedevamo</td><td>dormivamo</td><td>eravamo</td></tr>
+        <tr><td>voi</td><td>parlavate</td><td>vedevate</td><td>dormivate</td><td>eravate</td></tr>
+        <tr><td>loro</td><td>parlavano</td><td>vedevano</td><td>dormivano</td><td>erano</td></tr>
+      </tbody></table>
+      <div class="gram-tip">💡 Muito regular — si sabes el español, ya casi lo sabes en italiano.</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Passato prossimo vs. Imperfetto</h4>
+      <table class="gram-table"><thead><tr><th>Passato prossimo</th><th>Imperfetto</th></tr></thead>
+      <tbody>
+        <tr><td>Acción puntual, completada</td><td>Acción habitual o continuada</td></tr>
+        <tr><td>Ieri ho mangiato la pizza</td><td>Da piccolo mangiavo sempre la pizza</td></tr>
+        <tr><td>Stamattina sono uscito alle 8</td><td>Uscivo sempre alle 8</td></tr>
+      </tbody></table>
+    </div>
+    `
+  },
+  {
+    id:"fut", e:"🔮", title:"Futuro semplice", sub:"Predicciones · Promesas · Incertidumbre",
+    color:"#4A7FB5", bg:"rgba(74,127,181,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Conjugación del futuro</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>parlare</th><th>vedere</th><th>dormire</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>parlerò</td><td>vedrò</td><td>dormirò</td></tr>
+        <tr><td>tu</td><td>parlerai</td><td>vedrai</td><td>dormirai</td></tr>
+        <tr><td>lui/lei</td><td>parlerà</td><td>vedrà</td><td>dormirà</td></tr>
+        <tr><td>noi</td><td>parleremo</td><td>vedremo</td><td>dormiremo</td></tr>
+        <tr><td>voi</td><td>parlerete</td><td>vedrete</td><td>dormirete</td></tr>
+        <tr><td>loro</td><td>parleranno</td><td>vedranno</td><td>dormiranno</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Irregulares frecuentes: essere → sarò · avere → avrò · fare → farò · andare → andrò · venire → verrò · dire → dirò · potere → potrò · volere → vorrò · dovere → dovrò</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Usos del futuro</h4>
+      <div class="gram-ex"><div class="it">Domani andrò al cinema. (futuro programado)</div><div class="es">Mañana iré al cine.</div></div>
+      <div class="gram-ex"><div class="it">Saranno le tre. (probabilidad)</div><div class="es">Serán las tres. (suposición)</div></div>
+      <div class="gram-tip">💡 En italiano coloquial el futuro programado se expresa frecuentemente con el presente: «Domani vado al cinema» es igual de correcto.</div>
+    </div>
+    `
+  },
+  {
+    id:"cond", e:"💫", title:"Condizionale", sub:"Cortesía · Deseos · Hipótesis",
+    color:"#2E8B57", bg:"rgba(46,139,87,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Condizionale presente — conjugación</h4>
+      <p>Las bases son las mismas que el futuro. La terminación cambia:</p>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>parlare</th><th>vedere</th><th>essere</th><th>avere</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>parlerei</td><td>vedrei</td><td>sarei</td><td>avrei</td></tr>
+        <tr><td>tu</td><td>parleresti</td><td>vedresti</td><td>saresti</td><td>avresti</td></tr>
+        <tr><td>lui/lei</td><td>parlerebbe</td><td>vedrebbe</td><td>sarebbe</td><td>avrebbe</td></tr>
+        <tr><td>noi</td><td>parleremmo</td><td>vedremmo</td><td>saremmo</td><td>avremmo</td></tr>
+        <tr><td>voi</td><td>parlereste</td><td>vedreste</td><td>sareste</td><td>avreste</td></tr>
+        <tr><td>loro</td><td>parlerebbero</td><td>vedrebbero</td><td>sarebbero</td><td>avrebbero</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Usos principales</h4>
+      <div class="gram-ex"><div class="it">Vorrei un caffè, per favore. (cortesía)</div><div class="es">Quisiera un café, por favor.</div></div>
+      <div class="gram-ex"><div class="it">Dovresti studiare di più. (consejo)</div><div class="es">Deberías estudiar más.</div></div>
+      <div class="gram-ex"><div class="it">Se potessi, viaggerei ogni giorno. (hipótesis)</div><div class="es">Si pudiera, viajaría cada día.</div></div>
+      <div class="gram-tip">💡 «Vorrei» es la forma más útil del condizionale. Úsala siempre para pedir algo en un bar, restaurante o tienda. Es más educado que «voglio».</div>
+    </div>
+    `
+  },
+  {
+    id:"cong", e:"🌀", title:"Congiuntivo presente", sub:"Opiniones · Deseos · Dudas · B1",
+    color:"#CE2B37", bg:"rgba(206,43,55,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 ¿Cuándo usar el congiuntivo?</h4>
+      <p>El congiuntivo (≈ subjuntivo español) aparece en oraciones subordinadas que expresan opinión, deseo, duda o emoción, introducidas por «che».</p>
+      <table class="gram-table"><thead><tr><th>Contexto</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Opinión</td><td>Penso che sia stanco.</td></tr>
+        <tr><td>Deseo</td><td>Voglio che tu venga.</td></tr>
+        <tr><td>Duda</td><td>Non so se sia possibile.</td></tr>
+        <tr><td>Necesidad</td><td>Bisogna che tu studi.</td></tr>
+        <tr><td>Emoción</td><td>Sono felice che tu stia bene.</td></tr>
+        <tr><td>Concesión</td><td>Sebbene sia tardi, continuo.</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Conjugación del congiuntivo presente</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>parlare</th><th>vedere</th><th>dormire</th><th>essere</th><th>avere</th></tr></thead>
+      <tbody>
+        <tr><td>io</td><td>parli</td><td>veda</td><td>dorma</td><td>sia</td><td>abbia</td></tr>
+        <tr><td>tu</td><td>parli</td><td>veda</td><td>dorma</td><td>sia</td><td>abbia</td></tr>
+        <tr><td>lui/lei</td><td>parli</td><td>veda</td><td>dorma</td><td>sia</td><td>abbia</td></tr>
+        <tr><td>noi</td><td>parliamo</td><td>vediamo</td><td>dormiamo</td><td>siamo</td><td>abbiamo</td></tr>
+        <tr><td>voi</td><td>parliate</td><td>vediate</td><td>dormiate</td><td>siate</td><td>abbiate</td></tr>
+        <tr><td>loro</td><td>parlino</td><td>vedano</td><td>dormano</td><td>siano</td><td>abbiano</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Las tres primeras personas del singular son idénticas. Solo el contexto las distingue.</div>
+      <div class="gram-tip">💡 Para B1 lo más importante es reconocer el congiuntivo y saber usarlo con las expresiones más frecuentes: penso che, credo che, bisogna che, è possibile che, sebbene, benché, prima che, nonostante.</div>
+    </div>
+    `
+  },
+  {
+    id:"imp2", e:"📣", title:"Imperativo", sub:"Órdenes · Peticiones · Consejos",
+    color:"#C99A2E", bg:"rgba(201,154,46,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Imperativo afirmativo</h4>
+      <table class="gram-table"><thead><tr><th>Persona</th><th>parlare</th><th>vedere</th><th>dormire</th><th>essere</th><th>avere</th></tr></thead>
+      <tbody>
+        <tr><td>tu</td><td>parla!</td><td>vedi!</td><td>dormi!</td><td>sii!</td><td>abbi!</td></tr>
+        <tr><td>noi</td><td>parliamo!</td><td>vediamo!</td><td>dormiamo!</td><td>siamo!</td><td>abbiamo!</td></tr>
+        <tr><td>voi</td><td>parlate!</td><td>vedete!</td><td>dormite!</td><td>siate!</td><td>abbiate!</td></tr>
+        <tr><td>Lei (formal)</td><td>parli!</td><td>veda!</td><td>dorma!</td><td>sia!</td><td>abbia!</td></tr>
+      </tbody></table>
+      <div class="gram-ex"><div class="it">Vieni qui! · Andate a casa! · Parli più lentamente, per favore.</div><div class="es">¡Ven aquí! · ¡Id a casa! · Hable más despacio, por favor.</div></div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Imperativo negativo</h4>
+      <p>Con «tu»: <strong>non + infinitivo</strong>. Con los demás: <strong>non + imperativo normal</strong>.</p>
+      <div class="gram-ex"><div class="it">Non parlare! · Non mangiate! · Non venga tardi.</div><div class="es">¡No hables! · ¡No coméis! · No llegue tarde.</div></div>
+      <div class="gram-warn">⚠️ Solo la 2ª persona singular usa el infinitivo en negativo: «Non parlare!» (no «Non parla!»)</div>
+    </div>
+    `
+  },
+  {
+    id:"prep", e:"🔗", title:"Preposiciones", sub:"Di · A · Da · In · Con · Su · Per · Tra",
+    color:"#4A7FB5", bg:"rgba(74,127,181,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Las 8 preposiciones fundamentales</h4>
+      <table class="gram-table"><thead><tr><th>Prep.</th><th>Usos principales</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>di</strong></td><td>posesión, origen, materia, argumento</td><td>il libro di Marco · una tazza di caffè</td></tr>
+        <tr><td><strong>a</strong></td><td>lugar (estar en), destino, hora</td><td>Sono a Roma · Vado a Milano · alle tre</td></tr>
+        <tr><td><strong>da</strong></td><td>origen, desde (tiempo), por (agente), en casa de</td><td>vengo da Spagna · da tre anni · da Marco</td></tr>
+        <tr><td><strong>in</strong></td><td>lugar (países, regiones, locales), medio de transporte</td><td>in Italia · in ufficio · in treno</td></tr>
+        <tr><td><strong>con</strong></td><td>compañía, instrumento</td><td>con Marco · con il treno</td></tr>
+        <tr><td><strong>su</strong></td><td>encima de, sobre (tema)</td><td>sul tavolo · un libro sulla storia</td></tr>
+        <tr><td><strong>per</strong></td><td>finalidad, destino, duración</td><td>per te · parto per Roma · per tre ore</td></tr>
+        <tr><td><strong>tra/fra</strong></td><td>entre (lugar), entre (tiempo futuro)</td><td>tra me e te · tra dieci minuti</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Preposiciones articuladas</h4>
+      <p>Cuando <strong>di, a, da, in, su</strong> van seguidas de artículo definido, se fusionan:</p>
+      <table class="gram-table"><thead><tr><th></th><th>il</th><th>lo</th><th>la</th><th>l'</th><th>i</th><th>gli</th><th>le</th></tr></thead>
+      <tbody>
+        <tr><td><strong>di</strong></td><td>del</td><td>dello</td><td>della</td><td>dell'</td><td>dei</td><td>degli</td><td>delle</td></tr>
+        <tr><td><strong>a</strong></td><td>al</td><td>allo</td><td>alla</td><td>all'</td><td>ai</td><td>agli</td><td>alle</td></tr>
+        <tr><td><strong>da</strong></td><td>dal</td><td>dallo</td><td>dalla</td><td>dall'</td><td>dai</td><td>dagli</td><td>dalle</td></tr>
+        <tr><td><strong>in</strong></td><td>nel</td><td>nello</td><td>nella</td><td>nell'</td><td>nei</td><td>negli</td><td>nelle</td></tr>
+        <tr><td><strong>su</strong></td><td>sul</td><td>sullo</td><td>sulla</td><td>sull'</td><td>sui</td><td>sugli</td><td>sulle</td></tr>
+      </tbody></table>
+      <div class="gram-ex"><div class="it">Vado al mercato. · Il libro è sulla tavola. · Vengo dall'ufficio.</div><div class="es">Voy al mercado. · El libro está sobre la mesa. · Vengo de la oficina.</div></div>
+    </div>
+    `
+  },
+  {
+    id:"ger", e:"🔄", title:"Gerundio y progresivo", sub:"Stare + gerundio · Acciones en curso",
+    color:"#2E8B57", bg:"rgba(46,139,87,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Formación del gerundio</h4>
+      <table class="gram-table"><thead><tr><th>Conjugación</th><th>Terminación</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>-ARE</td><td>-ando</td><td>parlare → parlando</td></tr>
+        <tr><td>-ERE</td><td>-endo</td><td>vedere → vedendo</td></tr>
+        <tr><td>-IRE</td><td>-endo</td><td>dormire → dormendo</td></tr>
+      </tbody></table>
+      <div class="gram-warn">⚠️ Irregulares: fare → facendo · dire → dicendo · bere → bevendo</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Stare + gerundio (progresivo)</h4>
+      <p>Equivale exactamente al "estar + gerundio" español.</p>
+      <div class="gram-ex"><div class="it">Sto mangiando. · Stava dormendo. · Cosa stai facendo?</div><div class="es">Estoy comiendo. · Estaba durmiendo. · ¿Qué estás haciendo?</div></div>
+      <div class="gram-tip">💡 Este es uno de los puntos gramaticales más fáciles para un hispanohablante. Funciona exactamente igual que en español.</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Otros usos del gerundio</h4>
+      <div class="gram-ex"><div class="it">Studiando ogni giorno, migliori rapidamente. (modo)</div><div class="es">Estudiando cada día, mejoras rápidamente.</div></div>
+      <div class="gram-ex"><div class="it">Pur essendo stanco, ha continuato a lavorare. (concesión)</div><div class="es">A pesar de estar cansado, continuó trabajando.</div></div>
+    </div>
+    `
+  },
+  {
+    id:"si", e:"👥", title:"Si impersonale y pasivo", sub:"Forma impersonal · Voz pasiva",
+    color:"#D4714A", bg:"rgba(212,113,74,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Si impersonale</h4>
+      <p>Equivale a "se" impersonal español. Se usa con la 3ª persona singular del verbo.</p>
+      <div class="gram-ex"><div class="it">In Italia si mangia molta pasta.</div><div class="es">En Italia se come mucha pasta.</div></div>
+      <div class="gram-ex"><div class="it">Come si dice "gracias" in italiano?</div><div class="es">¿Cómo se dice "gracias" en italiano?</div></div>
+      <div class="gram-ex"><div class="it">Si parla italiano qui.</div><div class="es">Se habla italiano aquí.</div></div>
+      <div class="gram-warn">⚠️ Con adjetivo, el adjetivo va en plural: «In Italia si è sempre stanchi» (En Italia uno siempre está cansado)</div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Voz pasiva — essere + participio</h4>
+      <div class="gram-ex"><div class="it">Il libro è scritto da un autore famoso.</div><div class="es">El libro está escrito por un autor famoso.</div></div>
+      <div class="gram-ex"><div class="it">La lettera è stata inviata ieri.</div><div class="es">La carta fue enviada ayer.</div></div>
+      <div class="gram-tip">💡 En italiano coloquial la pasiva se evita frecuentemente con «si» impersonale. Ambas formas son correctas.</div>
+    </div>
+    `
+  },
+  {
+    id:"rel", e:"🔀", title:"Pronombres relativos", sub:"Che · Cui · Il quale",
+    color:"#7A5F9E", bg:"rgba(122,95,158,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Che — el relativo más usado</h4>
+      <p>Equivale a "que" en español. Es invariable (no cambia de género ni número).</p>
+      <div class="gram-ex"><div class="it">Il libro che ho comprato è interessante.</div><div class="es">El libro que he comprado es interesante.</div></div>
+      <div class="gram-ex"><div class="it">La ragazza che parla è mia sorella.</div><div class="es">La chica que habla es mi hermana.</div></div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Cui — con preposición</h4>
+      <p>Se usa cuando el relativo va precedido de preposición. Equivale a "que / quien / el cual" precedido de preposición.</p>
+      <div class="gram-ex"><div class="it">La persona con cui parlo si chiama Marco.</div><div class="es">La persona con quien hablo se llama Marco.</div></div>
+      <div class="gram-ex"><div class="it">Il motivo per cui studio è chiaro.</div><div class="es">El motivo por el que estudio es claro.</div></div>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Il quale / la quale / i quali / le quali</h4>
+      <p>Alternativa más formal a «che» y «cui». Concuerda en género y número.</p>
+      <div class="gram-ex"><div class="it">Il professore, il quale insegna storia, è molto bravo.</div><div class="es">El profesor, el cual enseña historia, es muy bueno.</div></div>
+      <div class="gram-tip">💡 Para B1 domina bien «che» y «cui». El quale aparece más en escritura formal.</div>
+    </div>
+    `
+  },
+  {
+    id:"conn", e:"🔗", title:"Conectores y marcadores", sub:"Para construir textos cohesionados",
+    color:"#4A7FB5", bg:"rgba(74,127,181,.1)",
+    content:`
+    <div class="gram-section">
+      <h4>📌 Adición y contraste</h4>
+      <table class="gram-table"><thead><tr><th>Italiano</th><th>Español</th><th>Tipo</th></tr></thead>
+      <tbody>
+        <tr><td>e / anche</td><td>y / también</td><td>Adición</td></tr>
+        <tr><td>ma / però</td><td>pero / sin embargo</td><td>Contraste</td></tr>
+        <tr><td>invece</td><td>en cambio / por el contrario</td><td>Contraste</td></tr>
+        <tr><td>tuttavia / eppure</td><td>sin embargo / aun así</td><td>Contraste</td></tr>
+        <tr><td>nonostante / sebbene</td><td>a pesar de que / aunque</td><td>Concesión</td></tr>
+        <tr><td>anche se</td><td>aunque / incluso si</td><td>Concesión</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Causa, consecuencia y finalidad</h4>
+      <table class="gram-table"><thead><tr><th>Italiano</th><th>Español</th><th>Tipo</th></tr></thead>
+      <tbody>
+        <tr><td>perché / poiché</td><td>porque / ya que</td><td>Causa</td></tr>
+        <tr><td>quindi / allora / perciò</td><td>entonces / por lo tanto</td><td>Consecuencia</td></tr>
+        <tr><td>per / affinché</td><td>para / para que</td><td>Finalidad</td></tr>
+        <tr><td>se</td><td>si</td><td>Condición</td></tr>
+        <tr><td>quando</td><td>cuando</td><td>Tiempo</td></tr>
+        <tr><td>mentre</td><td>mientras</td><td>Tiempo</td></tr>
+        <tr><td>prima di / dopo</td><td>antes de / después de</td><td>Tiempo</td></tr>
+      </tbody></table>
+    </div>
+    <div class="gram-section">
+      <h4>📌 Marcadores discursivos frecuentes</h4>
+      <table class="gram-table"><thead><tr><th>Italiano</th><th>Español</th></tr></thead>
+      <tbody>
+        <tr><td>infatti</td><td>de hecho / en efecto</td></tr>
+        <tr><td>in realtà</td><td>en realidad</td></tr>
+        <tr><td>per esempio</td><td>por ejemplo</td></tr>
+        <tr><td>cioè</td><td>es decir / o sea</td></tr>
+        <tr><td>insomma</td><td>en resumen / total</td></tr>
+        <tr><td>comunque</td><td>de todas formas / en todo caso</td></tr>
+        <tr><td>secondo me</td><td>en mi opinión</td></tr>
+        <tr><td>a proposito</td><td>a propósito / por cierto</td></tr>
+      </tbody></table>
+    </div>
+    `
+  },
+];
 
-/* ── NOTIFICATIONS ─────────────────────────────────────────────────────── */
-function initNotif(){
-  const bar=document.getElementById('nb');
-  const perm=typeof Notification!=='undefined'?Notification.permission:'none';
-  if(perm==='none'){bar.style.display='none';return;}
-  if(perm==='granted'){bar.style.display='none';scheduleAll();return;}
-  if(perm==='denied'){
-    bar.className='nb err';bar.style.display='flex';
-    document.getElementById('nb-txt').textContent='Notificaciones bloqueadas en este navegador';
-    bar.onclick=null;return;
-  }
-  // default - ask
-  bar.style.display='flex';
-  document.getElementById('nb-txt').textContent='Toca para activar notificaciones de eventos';
-  bar.onclick=async()=>{
-    const r=await Notification.requestPermission();
-    if(r==='granted'){bar.style.display='none';scheduleAll();}
-    else{bar.className='nb err';document.getElementById('nb-txt').textContent='Notificaciones no disponibles en este navegador/dispositivo';bar.onclick=null;}
-  };
+const PLAN = [
+  {w:1,e:"👋",title:"¡Primeros pasos!",sub:"Saluti · Basi · Supervivencia",color:"#D4714A",bg:"rgba(212,113,74,.1)",
+   days:[{d:"Días 1-2",t:"Saluti",c:"Ciao, grazie, prego, scusa, per favore."},{d:"Días 3-4",t:"Basi",c:"Sì, no, come stai, bene/male, non capisco, quanto costa."},{d:"Días 5-6",t:"Preguntas",c:"Dov'è, quando, chi, cosa. Las 4 preguntas de oro."},{d:"Día 7",t:"🔄 Repaso SRS",c:"La app te muestra automáticamente las tarjetas que toca. ¡15 min!"}]},
+  {w:2,e:"🔢",title:"Números y familia",sub:"Numeri · Colori · Famiglia",color:"#4A7FB5",bg:"rgba(74,127,181,.1)",
+   days:[{d:"Días 8-9",t:"Numeri",c:"Del 1 al 10. Básico para precios, horarios, teléfonos."},{d:"Días 10-11",t:"Colori",c:"Los 6 colores esenciales."},{d:"Días 12-13",t:"Famiglia",c:"Madre, padre, fratello, sorella, figlio, marito, moglie."},{d:"Día 14",t:"🔄 Repaso SRS",c:"Todas las tarjetas de semanas 1-2 pendientes."}]},
+  {w:3,e:"⚡",title:"Los verbos que lo son todo",sub:"15 verbos esenciales en presente",color:"#2E8B57",bg:"rgba(46,139,87,.1)",
+   days:[{d:"Días 15-16",t:"Essere + Avere",c:"'Ser/estar' y 'tener'. Son los pilares. Memoriza sus conjugaciones."},{d:"Días 17-18",t:"Andare · Venire · Fare",c:"Ir, venir, hacer. Con estos tres resuelves el 40% del habla cotidiana."},{d:"Días 19-20",t:"Potere · Volere · Dovere",c:"Los modales. 'Posso...', 'Voglio...', 'Devo...'"},{d:"Día 21",t:"🔄 Repaso SRS intensivo",c:"Los verbos necesitan más repetición. El SRS los dará seguido."}]},
+  {w:4,e:"🍕",title:"Mesa y pasado",sub:"Cibo · Ristorante · Passato prossimo",color:"#CE2B37",bg:"rgba(206,43,55,.1)",
+   days:[{d:"Días 22-23",t:"Cibo",c:"Pan, pasta, pizza, carne, pesce, vino, acqua."},{d:"Días 24-25",t:"Ristorante",c:"Vorrei, il conto, il cameriere. Comer fuera sin sudar."},{d:"Días 26-27",t:"Passato prossimo",c:"Ho mangiato, sono andato, ho fatto, sono stato."},{d:"Día 28",t:"🔄 Repaso SRS",c:"Media sesión extra con verbos en pasado."}]},
+  {w:5,e:"✈️",title:"Viajes y ciudad",sub:"Viaggi · Orientamento · Città",color:"#C99A2E",bg:"rgba(201,154,46,.1)",
+   days:[{d:"Días 29-30",t:"Viaggi",c:"Aeropuerto, estación, tren, billete, hotel. ¡OJO: camera ≠ cámara!"},{d:"Días 31-32",t:"Orientamento",c:"Sinistra, destra, dritto, vicino, lontano."},{d:"Días 33-34",t:"Città",c:"Piazza, via, farmacia, supermercato."},{d:"Día 35",t:"🔄 Repaso SRS",c:"Revisión acumulada semanas 1-5."}]},
+  {w:6,e:"💼",title:"Vida cotidiana",sub:"Lavoro · Casa · Routine",color:"#7A5F9E",bg:"rgba(122,95,158,.1)",
+   days:[{d:"Días 36-37",t:"Lavoro",c:"Trabajo, oficina, reunión, colega, jefe, sueldo."},{d:"Días 38-39",t:"Casa + Routine",c:"Apartamento, cocina, salón, levantarse, di solito."},{d:"Días 40-41",t:"Tiempo",c:"Fine settimana, adesso, subito ⚠️, spesso, qualche volta."},{d:"Día 42",t:"🔄 Repaso SRS acumulado",c:"Punto crítico: muchas tarjetas maduras. Sesión de 20 min."}]},
+  {w:7,e:"💬",title:"Opiniones y emociones",sub:"Connettori · Emozioni · Opinioni",color:"#D4714A",bg:"rgba(212,113,74,.1)",
+   days:[{d:"Días 43-44",t:"Opinioni",c:"Penso che, secondo me, sono d'accordo, hai ragione."},{d:"Días 45-46",t:"Emozioni",c:"Contento, stanco, ho paura, mi piace, ho voglia di."},{d:"Días 47-48",t:"Connettori",c:"Però, quindi, allora, anche se, per fortuna, purtroppo."},{d:"Día 49",t:"🔄 Test informal",c:"Quiz rápido de todas las semanas."}]},
+  {w:8,e:"🎓",title:"Nivel B1 — Llegada",sub:"Congiuntivo · Condizionale · B1 real",color:"#2E8B57",bg:"rgba(46,139,87,.1)",
+   days:[{d:"Días 50-51",t:"Congiuntivo",c:"Bisogna che, è importante che, sebbene, prima che."},{d:"Días 52-53",t:"Condizionale",c:"Vorrei, se potessi... El condicional para hablar con cortesía."},{d:"Días 54-55",t:"B1 real",c:"Da quanto tempo, in realtà, sto imparando."},{d:"Días 56-60",t:"🔄🎓 Repaso final",c:"SRS cada día. En estos últimos 5 días consolidas todo."}]},
+];
+
+// ═══════════════════════════════════════════════════════
+// SRS ENGINE
+// ═══════════════════════════════════════════════════════
+const BOX_INTERVALS = [0, 1, 3, 7, 14, 30];
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function addDays(dateStr, n) { const d = new Date(dateStr); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
+function daysSince(dateStr) {
+  if (!dateStr) return 0;
+  const d = new Date(dateStr), t = new Date();
+  d.setHours(0,0,0,0); t.setHours(0,0,0,0);
+  return Math.floor((t - d) / 86400000);
 }
 
-function scheduleAll(){
-  if(typeof Notification==='undefined'||Notification.permission!=='granted')return;
-  const now=new Date(),t=today();
-  evs.forEach(ev=>{
-    if(ev.completed)return;
-    const key=`n-${ev.id}-${t}`;
-    if(ev.isAllDay){
-      const days=dU(ev.date);
-      if(days>=0&&days<=(ev.reminderDays??1)&&!sessionStorage.getItem(key)){
-        new Notification(`${ev.type==='deadline'?'⏰':'📅'} ${ev.title}`,
-          {body:days===0?'¡Hoy!':days===1?'¡Mañana!':'En '+days+' días',icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect fill="%237c6ff0" width="1" height="1"/></svg>'});
-        sessionStorage.setItem(key,'1');
-      }
-    }else if(ev.date===t){
-      const[h,m]=ev.startTime.split(':').map(Number);
-      const evT=new Date();evT.setHours(h,m,0,0);
-      const nT=new Date(evT.getTime()-(ev.reminderMins||0)*60000);
-      const delay=nT-now;
-      if(delay>0&&delay<86400000){
-        setTimeout(()=>{
-          if(Notification.permission==='granted')
-            new Notification(`📅 ${ev.title}`,{body:ev.reminderMins?`En ${ev.reminderMins} min`:'¡Ahora!'});
-        },delay);
-      }else if(delay>-300000&&delay<=0&&!sessionStorage.getItem(key)){
-        new Notification(`📅 ${ev.title}`,{body:'¡Empieza ahora!'});
-        sessionStorage.setItem(key,'1');
-      }
-    }
+// Asigna un día del programa (1-60) a cada tarjeta
+// 15 tarjetas por semana → 3 bloques de 5, uno cada 2 días (días 1, 3, 5 de cada semana)
+function getCardDay(card) {
+  const weekStart = (card.w - 1) * 7 + 1;
+  const weekCards = VOCAB.filter(c => c.w === card.w).sort((a,b) => a.id - b.id);
+  const pos = weekCards.findIndex(c => c.id === card.id);
+  const slot = Math.floor(pos / 5); // 0, 1 o 2
+  return weekStart + slot * 2;
+}
+
+// Día actual del programa (automático o desbloqueado manualmente)
+function getCurrentDay() {
+  if (!S.startDate) return 1;
+  const auto = Math.min(60, daysSince(S.startDate) + 1);
+  // Migración desde versión anterior con unlockedWeek
+  const manual = S.unlockedDay || (S.unlockedWeek ? (S.unlockedWeek - 1) * 7 + 1 : 1);
+  return Math.max(auto, manual);
+}
+
+function getCurrentWeek() {
+  return Math.min(8, Math.ceil(getCurrentDay() / 7));
+}
+
+function getDueCards() {
+  const today = todayStr();
+  const currentDay = getCurrentDay();
+  return VOCAB.filter(c => {
+    if (getCardDay(c) > currentDay) return false;
+    const st = S.cardStates[c.id];
+    if (!st) return true;
+    return st.nextReview <= today;
   });
 }
 
-/* ── EVENT CRUD ─────────────────────────────────────────────────────────── */
-const addEv=ev=>{evs.push({...ev,id:uid(),completed:false});save();};
-const updEv=(id,u)=>{const i=evs.findIndex(e=>e.id===id);if(i>=0)evs[i]={...evs[i],...u};save();};
-const delEv=id=>{evs=evs.filter(e=>e.id!==id);save();};
-function togEv(id){
-  const ev=evs.find(e=>e.id===id);if(!ev)return;
-  if(!ev.completed&&ev.recurrence&&ev.recurrence!=='none'){
-    updEv(id,{completed:true,completedAt:today()});
-    addEv({...ev,id:undefined,date:nextRec(ev.date,ev.recurrence),completed:false,completedAt:null});
-  }else{updEv(id,{completed:!ev.completed,completedAt:!ev.completed?today():null});}
+function answerCard(id, correct) {
+  const st = S.cardStates[id] || { box: 0, nextReview: todayStr(), reviews: 0 };
+  if (correct) { st.box = Math.min(5, st.box + 1); } else { st.box = 1; }
+  st.reviews = (st.reviews || 0) + 1;
+  st.nextReview = addDays(todayStr(), BOX_INTERVALS[st.box] || 1);
+  S.cardStates[id] = st;
+  if (correct) S.totalCorrect = (S.totalCorrect||0)+1;
+  else S.totalWrong = (S.totalWrong||0)+1;
+  saveState();
 }
 
-/* ── MODAL ──────────────────────────────────────────────────────────────── */
-let _mf={};
-function openModal(init={},preDate='',preTime=''){
-  const isEdit=!!init.id;
-  _mf={
-    title:'',isAllDay:!preTime,date:preDate||today(),
-    startTime:preTime||'09:00',
-    endTime:preTime?pad(+preTime.split(':')[0]+1)+':'+preTime.split(':')[1]:'10:00',
-    color:COLORS[0],notes:'',type:'specific',priority:null,
-    reminderDays:1,reminderMins:15,recurrence:'none',
-    ...init
-  };
-  buildModal(isEdit);
-  document.getElementById('ov').style.display='flex';
-  setTimeout(()=>{const i=document.querySelector('#mb-body .fi');if(i)i.focus();},80);
+function updateStreak() {
+  const today = todayStr();
+  if (S.lastStudied === today) return;
+  S.streak = S.lastStudied === addDays(today,-1) ? (S.streak||0)+1 : 1;
+  S.lastStudied = today;
+  saveState();
 }
 
-function buildModal(isEdit){
-  const body=document.getElementById('mb-body');body.innerHTML='';
-  const f=_mf;
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let S = { startDate:null, streak:0, lastStudied:null, cardStates:{}, totalCorrect:0, totalWrong:0, unlockedDay:1 };
 
-  body.appendChild(Object.assign(mk('div','mtitle'),{innerHTML:`<em>${isEdit?'✏️':'✦'}</em> ${isEdit?'Editar evento':'Nuevo evento'}`}));
+function loadState() { try { const s=localStorage.getItem('italiano_v2'); if(s) S=JSON.parse(s); } catch(e){} }
+function saveState() { try { localStorage.setItem('italiano_v2', JSON.stringify(S)); } catch(e){} }
 
-  // Title
-  const fg1=mk('div','fg','<label class="flbl">Título</label>');
-  const ti=mk('input','fi','',);ti.type='text';ti.placeholder='¿Qué hay que hacer?';ti.value=f.title;
-  ti.oninput=e=>f.title=e.target.value;
-  ti.onkeydown=e=>{if(e.key==='Enter'&&f.title.trim())saveM(isEdit);};
-  fg1.appendChild(ti);body.appendChild(fg1);
+// ═══════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════
+let screen = 'home';
+let session = { cards:[], idx:0, flipped:false, correct:0, wrong:0, done:false };
+let vocabTab = 'ff';
+let openWeek = null;
+let openGram = null;
 
-  // Type: all-day vs timed
-  const fg2=mk('div','fg','<label class="flbl">Tipo de evento</label>');
-  const tog=mk('div','tog2');
-  const b1=mk('button','tb'+(f.isAllDay?' on':''),'📅 Todo el día');
-  const b2=mk('button','tb'+(!f.isAllDay?' on':''),'⏰ Con horario');
-  b1.onclick=()=>{f.isAllDay=true;buildModal(isEdit);};
-  b2.onclick=()=>{f.isAllDay=false;buildModal(isEdit);};
-  tog.appendChild(b1);tog.appendChild(b2);fg2.appendChild(tog);body.appendChild(fg2);
+function goTo(s) { screen=s; if(s==='session') startSession(); render(); }
 
-  // Date
-  const fg3=mk('div','fg','<label class="flbl">Fecha</label>');
-  const di=mk('input','fi');di.type='date';di.value=f.date;di.onchange=e=>f.date=e.target.value;
-  fg3.appendChild(di);body.appendChild(fg3);
-
-  if(!f.isAllDay){
-    // Time range
-    const fg4=mk('div','fg','<label class="flbl">Horario (inicio — fin)</label>');
-    const tr=mk('div','time2');
-    const si=mk('input','fi');si.type='time';si.value=f.startTime;si.onchange=e=>f.startTime=e.target.value;
-    const ei=mk('input','fi');ei.type='time';ei.value=f.endTime;ei.onchange=e=>f.endTime=e.target.value;
-    tr.appendChild(si);tr.appendChild(ei);fg4.appendChild(tr);body.appendChild(fg4);
-    // Reminder timed
-    const fg5=mk('div','fg','<label class="flbl">Aviso antes</label>');
-    const rt=mk('div','tog6');
-    RTIMED.forEach(r=>{
-      const b=mk('button','tb'+(f.reminderMins===r.v?' on':''),r.l);
-      b.onclick=()=>{f.reminderMins=r.v;rt.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
-      rt.appendChild(b);
-    });
-    fg5.appendChild(rt);body.appendChild(fg5);
-  }else{
-    // Subtype
-    const fg4=mk('div','fg','<label class="flbl">Subtipo</label>');
-    const tt=mk('div','tog2');
-    const t1=mk('button','tb'+(f.type==='specific'?' on':''),'📅 Día concreto');
-    const t2=mk('button','tb'+(f.type==='deadline'?' on':''),'⏰ Fecha límite');
-    t1.onclick=()=>{f.type='specific';t1.classList.add('on');t2.classList.remove('on');};
-    t2.onclick=()=>{f.type='deadline';t2.classList.add('on');t1.classList.remove('on');};
-    tt.appendChild(t1);tt.appendChild(t2);fg4.appendChild(tt);body.appendChild(fg4);
-    // Priority
-    const fg5=mk('div','fg');fg5.innerHTML='<label class="flbl">Prioridad <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.6rem">(opcional)</span></label>';
-    const pt=mk('div','tog3');
-    PRIO.forEach(p=>{
-      const b=mk('button','tb'+(f.priority===p.v?' on':''),`${p.i} ${p.l}`);
-      if(f.priority===p.v)b.style.cssText=`border-color:${p.c};color:${p.c};background:${p.c}18;`;
-      b.onclick=()=>{
-        f.priority=f.priority===p.v?null:p.v;
-        pt.querySelectorAll('.tb').forEach(x=>{x.classList.remove('on');x.style.cssText='';});
-        if(f.priority){b.classList.add('on');b.style.cssText=`border-color:${p.c};color:${p.c};background:${p.c}18;`;}
-      };
-      pt.appendChild(b);
-    });
-    fg5.appendChild(pt);body.appendChild(fg5);
-    // Recurrence
-    const fg6=mk('div','fg','<label class="flbl">Repetición</label>');
-    const rs=mk('select','fsel');
-    RECUR.forEach(r=>{const o=mk('option');o.value=r.v;o.textContent=r.l;if(f.recurrence===r.v)o.selected=true;rs.appendChild(o);});
-    rs.onchange=e=>f.recurrence=e.target.value;fg6.appendChild(rs);body.appendChild(fg6);
-    // Reminder days
-    const fg7=mk('div','fg','<label class="flbl">Aviso con antelación</label>');
-    const rd=mk('select','fsel');
-    RDAY.forEach(r=>{const o=mk('option');o.value=r.v;o.textContent=r.l;if(f.reminderDays===r.v)o.selected=true;rd.appendChild(o);});
-    rd.onchange=e=>f.reminderDays=+e.target.value;fg7.appendChild(rd);body.appendChild(fg7);
-  }
-
-  // Color
-  const fgC=mk('div','fg','<label class="flbl">Color</label>');
-  const cr=mk('div','cswrow');
-  COLORS.forEach(c=>{
-    const sw=mk('div','csw'+(f.color===c?' sel':''),'','background:'+c);
-    sw.onclick=()=>{f.color=c;cr.querySelectorAll('.csw').forEach(x=>x.classList.remove('sel'));sw.classList.add('sel');};
-    cr.appendChild(sw);
-  });
-  fgC.appendChild(cr);body.appendChild(fgC);
-
-  // Notes
-  const fgN=mk('div','fg','<label class="flbl">Notas (opcional)</label>');
-  const ta=mk('textarea','fta');ta.placeholder='Detalles, contexto, enlace…';ta.value=f.notes||'';
-  ta.oninput=e=>f.notes=e.target.value;fgN.appendChild(ta);body.appendChild(fgN);
-
-  // Actions
-  const acts=mk('div','macts');
-  if(isEdit){const d=mk('button','mb mbd','🗑');d.onclick=()=>{delEv(f.id);closeModal();render();};acts.appendChild(d);}
-  const canc=mk('button','mb mbs','Cancelar');canc.onclick=closeModal;
-  const ok=mk('button','mb mbp',isEdit?'Guardar':'Añadir');
-  ok.onclick=()=>{if(f.title.trim())saveM(isEdit);};
-  acts.appendChild(canc);acts.appendChild(ok);body.appendChild(acts);
+function startSession() {
+  const due = getDueCards();
+  if (!due.length) { session={cards:[],idx:0,flipped:false,correct:0,wrong:0,done:true}; return; }
+  session={cards:[...due].sort(()=>Math.random()-.5),idx:0,flipped:false,correct:0,wrong:0,done:false};
 }
 
-function saveM(isEdit){
-  if(isEdit)updEv(_mf.id,_mf);else addEv(_mf);
-  closeModal();scheduleAll();render();
-}
-function closeModal(){document.getElementById('ov').style.display='none';}
-
-/* ── LAYOUT OVERLAPPING EVENTS ─────────────────────────────────────────── */
-function layoutEvs(arr){
-  if(!arr.length)return[];
-  const s=[...arr].sort((a,b)=>tMins(a.startTime)-tMins(b.startTime));
-  const cols=[];const res=[];
-  s.forEach(ev=>{
-    const sm=tMins(ev.startTime),em=tMins(ev.endTime);
-    let col=cols.findIndex(end=>end<=sm);
-    if(col===-1){col=cols.length;cols.push(0);}
-    cols[col]=em;res.push({...ev,col});
-  });
-  return res.map(e=>({...e,numCols:cols.length}));
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  if (!S.startDate) { renderSetup(); return; }
+  document.getElementById('app').innerHTML = renderScreen() + renderNav();
 }
 
-/* ── WEEK VIEW ─────────────────────────────────────────────────────────── */
-function renderWeek(){
-  const v=document.getElementById('v-wk');v.innerHTML='';
-  const days=wkDays(wkMon);const t=today();
-
-  // Nav
-  const nav=mk('div','wk-nav');
-  const pb=mk('button','nav-b','‹');pb.onclick=()=>{wkMon=addDays(wkMon,-7);renderWeek();};
-  const nb=mk('button','nav-b','›');nb.onclick=()=>{wkMon=addDays(wkMon,7);renderWeek();};
-  const hb=mk('button','hoy-b','Hoy');hb.onclick=()=>{wkMon=getMon(new Date());renderWeek();};
-  const d0=days[0],d6=days[6];
-  const sm=d0.getMonth()===d6.getMonth();
-  const lbl=sm?`${d0.getDate()} – ${d6.getDate()} ${MONTHS[d0.getMonth()]} ${d0.getFullYear()}`
-    :`${d0.getDate()} ${MONTHS_S[d0.getMonth()]} – ${d6.getDate()} ${MONTHS_S[d6.getMonth()]} ${d6.getFullYear()}`;
-  const wl=mk('div','wk-lbl',lbl);
-  nav.appendChild(pb);nav.appendChild(wl);nav.appendChild(hb);nav.appendChild(nb);
-  v.appendChild(nav);
-
-  // Cal container
-  const wrap=mk('div','cal-wrap');
-  const scroll=mk('div','cal-scroll');
-  const inner=mk('div','cal-inner');
-
-  // Day headers
-  const hdrs=mk('div','dhdrs');
-  hdrs.appendChild(mk('div','tc-sp'));
-  days.forEach(d=>{
-    const ds=ymd(d);const isT=ds===t;
-    const hasEv=evs.some(e=>e.date===ds&&!e.completed);
-    const hdr=mk('div','dhdr');
-    const wd=d.getDay()===0?6:d.getDay()-1;
-    hdr.appendChild(mk('div','d-name',WD[wd]));
-    const num=mk('div','d-num'+(isT?' hoy':'')+(hasEv&&!isT?' hev':''),d.getDate());
-    num.onclick=()=>openModal({isAllDay:true},ds,'');
-    hdr.appendChild(num);hdrs.appendChild(hdr);
-  });
-  inner.appendChild(hdrs);
-
-  // All-day row
-  const adr=mk('div','adr');
-  adr.appendChild(mk('div','adr-lbl','todo<br>día'));
-  days.forEach(d=>{
-    const ds=ymd(d);
-    const dayEvs=evs.filter(e=>e.date===ds&&e.isAllDay&&!e.completed);
-    const col=mk('div','adc');
-    col.onclick=()=>openModal({isAllDay:true},ds,'');
-    dayEvs.slice(0,2).forEach(ev=>{
-      const ae=mk('div','ade',ev.title,'background:'+ev.color+'28;color:'+ev.color+';border:1px solid '+ev.color+'55;');
-      ae.onclick=e=>{e.stopPropagation();openModal(ev);};col.appendChild(ae);
-    });
-    adr.appendChild(col);
-  });
-  inner.appendChild(adr);
-
-  // Time grid
-  const grid=mk('div','tgrid');
-  HOURS.forEach(h=>{
-    grid.appendChild(mk('div','tlbl',h+':00'));
-    days.forEach(()=>{const c=mk('div','hcell');c.appendChild(mk('div','hline'));grid.appendChild(c);});
-  });
-  inner.appendChild(grid);
-  scroll.appendChild(inner);wrap.appendChild(scroll);v.appendChild(wrap);
-
-  // Position timed events & now-line after DOM paint
-  requestAnimationFrame(()=>{
-    const cells=[...grid.querySelectorAll('.hcell')];
-    if(!cells.length)return;
-    const gRect=grid.getBoundingClientRect();
-    const colRects=[];
-    for(let i=0;i<7;i++){const r=cells[i].getBoundingClientRect();colRects.push({left:r.left-gRect.left,w:r.width});}
-
-    days.forEach((d,di)=>{
-      const ds=ymd(d);
-      const timedEvs=evs.filter(e=>e.date===ds&&!e.isAllDay&&!e.completed);
-      const laid=layoutEvs(timedEvs);
-      const rc=colRects[di];
-      laid.forEach(ev=>{
-        const top=t2y(ev.startTime),h=durH(ev.startTime,ev.endTime);
-        if(top>HH*(GE-GS)||h<=0)return;
-        const cw=(rc.w-4)/ev.numCols;
-        const el=mk('div','ev');
-        el.style.cssText=`top:${top}px;height:${h}px;left:${rc.left+cw*ev.col+2}px;width:${cw}px;`+
-          `background:linear-gradient(150deg,${ev.color},${ev.color}bb);`;
-        el.appendChild(mk('div','ev-title',ev.title));
-        if(h>42)el.appendChild(mk('div','ev-time',fmtT(ev.startTime)+' – '+fmtT(ev.endTime)));
-        el.onclick=()=>openModal(ev);
-        grid.appendChild(el);
-      });
-
-      // Now line on today's column
-      if(ds===t){
-        const ny=nowY();
-        if(ny>=0&&ny<=HH*(GE-GS)){
-          const nl=mk('div','now-line','','top:'+ny+'px;left:'+rc.left+'px;width:'+rc.w+'px;');
-          nl.appendChild(mk('div','now-dot'));nl.appendChild(mk('div','now-bar'));
-          grid.appendChild(nl);
-        }
-      }
-    });
-
-    // Scroll to current hour - 1
-    const hr=Math.max(new Date().getHours()-1,GS);
-    scroll.scrollTop=HH*(hr-GS);
-  });
-
-  // Hour cell click handler to create timed event
-  grid.querySelectorAll('.hcell').forEach((cell,idx)=>{
-    cell.onclick=()=>{
-      const col=idx%7,row=Math.floor(idx/7);
-      const h=GS+row;
-      openModal({isAllDay:false},ymd(days[col]),pad(h)+':00');
-    };
-  });
+function renderNav() {
+  const items = [
+    {s:'home',i:'🏠',l:'Hoy'},
+    {s:'plan',i:'📅',l:'Plan'},
+    {s:'session',i:'🃏',l:'Sesión'},
+    {s:'vocab',i:'📚',l:'Vocab'},
+    {s:'gram',i:'📖',l:'Gramática'},
+    {s:'stats',i:'📊',l:'Stats'},
+  ];
+  return `<nav>${items.map(n=>`<button class="nt ${screen===n.s?'act':''}" onclick="goTo('${n.s}')"><span class="ni">${n.i}</span>${n.l}</button>`).join('')}</nav>`;
 }
 
-/* ── MONTH VIEW ─────────────────────────────────────────────────────────── */
-function renderMonth(){
-  const v=document.getElementById('v-mo');v.innerHTML='';
-  const{y,m}=curMo;const t=today();
-
-  // Nav
-  const nav=mk('div','wk-nav');
-  nav.style.marginBottom='10px';
-  const pb=mk('button','nav-b','‹');pb.onclick=()=>{curMo.m--;if(curMo.m<0){curMo.m=11;curMo.y--;}renderMonth();};
-  const nb_=mk('button','nav-b','›');nb_.onclick=()=>{curMo.m++;if(curMo.m>11){curMo.m=0;curMo.y++;}renderMonth();};
-  const hb=mk('button','hoy-b','Hoy');hb.onclick=()=>{curMo={y:new Date().getFullYear(),m:new Date().getMonth()};renderMonth();};
-  nav.appendChild(pb);nav.appendChild(mk('div','wk-lbl',MONTHS[m]+' '+y));nav.appendChild(hb);nav.appendChild(nb_);
-  v.appendChild(nav);
-
-  const mv=mk('div','mv');
-  const mg=mk('div','mgrid');
-  WD.forEach(d=>mg.appendChild(mk('div','mwdh',d)));
-  for(let i=0;i<fWD(y,m);i++)mg.appendChild(mk('div','mday empty'));
-  const days=mDays(y,m);
-  for(let d=1;d<=days;d++){
-    const ds=`${y}-${pad(m+1)}-${pad(d)}`;
-    const isT=ds===t,isPast=ds<t;
-    const dayEvs=evs.filter(e=>e.date===ds);
-    const cell=mk('div',`mday${isT?' today':''}${isPast?' past':''}`);
-    cell.appendChild(mk('div','mdn',d));
-    if(dayEvs.length){
-      const dots=mk('div','mdots');
-      dayEvs.slice(0,5).forEach(ev=>{
-        const dot=mk('div','mdot'+(ev.type==='deadline'?' dl':''),'','background:'+ev.color);
-        dot.onclick=e=>{e.stopPropagation();openModal(ev);};dots.appendChild(dot);
-      });
-      cell.appendChild(dots);
-    }
-    cell.onclick=()=>openModal({},ds,'');mg.appendChild(cell);
-  }
-  mv.appendChild(mg);v.appendChild(mv);
-
-  // Event list for month
-  const monthEvs=evs.filter(e=>e.date.startsWith(`${y}-${pad(m+1)}`))
-    .sort((a,b)=>a.date.localeCompare(b.date)||(!a.isAllDay&&b.isAllDay?-1:0));
-  if(monthEvs.length){
-    const ml=mk('div','mlist');
-    ml.appendChild(mk('div','mlist-lbl','Eventos del mes'));
-    monthEvs.forEach(ev=>{
-      const days_=dU(ev.date),pr=PRIO.find(p=>p.v===ev.priority);
-      const row=mk('div','ev-row');
-      const bar=mk('div','ev-bar','','background:'+ev.color);
-      const info=mk('div','ev-info');
-      const name=mk('div','ev-name'+(ev.completed?' done':''),ev.title);
-      const meta=mk('div','ev-meta');
-      if(pr)meta.innerHTML+=`<span class="badge bpr-${pr.v.charAt(0)}">${pr.i} ${pr.l}</span>`;
-      const db=days_<0?'bdn':days_===0?'bor':days_<=3?'bac':'';
-      const dl_=days_<0?'Vencida':days_===0?'Hoy':days_===1?'Mañana':days_+'d';
-      if(db)meta.innerHTML+=`<span class="badge ${db}">${dl_}</span>`;
-      if(!ev.isAllDay)meta.innerHTML+=`<span class="badge bmn">${fmtT(ev.startTime)}</span>`;
-      if(ev.recurrence&&ev.recurrence!=='none')meta.innerHTML+='<span style="font-size:.7rem;color:var(--mu)">↻</span>';
-      info.appendChild(name);info.appendChild(meta);
-      const chk=mk('div','ev-chk');
-      chk.style.cssText=`border-color:${ev.completed?ev.color:'rgba(120,120,255,.2)'};background:${ev.completed?ev.color+'28':'transparent'}`;
-      if(ev.completed)chk.innerHTML=`<span style="color:${ev.color}">✓</span>`;
-      chk.onclick=e=>{e.stopPropagation();togEv(ev.id);render();};
-      row.appendChild(bar);row.appendChild(info);row.appendChild(chk);
-      row.onclick=()=>openModal(ev);ml.appendChild(row);
-    });
-    v.appendChild(ml);
-  }
+function renderScreen() {
+  const map={home:rHome,plan:rPlan,session:rSession,vocab:rVocab,gram:rGram,stats:rStats};
+  return `<div class="scr act">${(map[screen]||rHome)()}</div>`;
 }
 
-/* ── LISTS VIEW ─────────────────────────────────────────────────────────── */
-function renderLists(){
-  const v=document.getElementById('v-li');v.innerHTML='';
-  if(activeList){
-    const list=lists.find(l=>l.id===activeList);
-    if(!list){activeList=null;renderLists();return;}
-    renderListDet(v,list);return;
-  }
-  const sh=mk('div','shdr');
-  sh.appendChild(mk('div','stl','Mis listas'));
-  sh.appendChild(mk('div','sbadge',`${lists.length} lista${lists.length!==1?'s':''}`));
-  v.appendChild(sh);
-  const g=mk('div','lgrid');
-  lists.forEach(list=>{
-    const done=list.items.filter(i=>i.checked).length;
-    const pct=list.items.length?Math.round(done/list.items.length*100):0;
-    const card=mk('div','lcard');
-    const lt=mk('div','lct',list.title);lt.style.borderLeft=`3px solid ${list.color}`;card.appendChild(lt);
-    card.appendChild(mk('div','lcm',`${list.items.length} elemento${list.items.length!==1?'s':''}`));
-    list.items.slice(0,3).forEach(item=>card.appendChild(mk('div','lci'+(item.checked?' ck':''),(item.checked?'✓ ':'· ')+item.text)));
-    if(list.items.length>3)card.appendChild(mk('div','lci','+'+(list.items.length-3)+' más…'));
-    if(list.items.length){const pb=mk('div','pgb');const pf=mk('div','pgf','','width:'+pct+'%;background:'+list.color);pb.appendChild(pf);card.appendChild(pb);card.appendChild(mk('div','pgt',pct+'% completado'));}
-    card.onclick=()=>{activeList=list.id;renderLists();};g.appendChild(card);
-  });
-  const nc=mk('div','lcard lnew');nc.innerHTML='<div style="font-size:1.5rem;opacity:.45">＋</div><span>Nueva lista</span>';
-  nc.onclick=()=>openListModal();g.appendChild(nc);v.appendChild(g);
+// ─── HOME ───
+function rHome() {
+  const due = getDueCards();
+  const cd = getCurrentDay();
+  const cw = getCurrentWeek();
+  const seen = Object.keys(S.cardStates).length;
+  const totalUnlocked = VOCAB.filter(c => getCardDay(c) <= cd).length;
+  const pct = totalUnlocked ? Math.round(seen/totalUnlocked*100) : 0;
+
+  // Calcular siguiente día desbloqueable
+  const nextDay = cd + 1;
+  const canUnlock = nextDay <= 60;
+  const newCardsNextDay = VOCAB.filter(c => getCardDay(c) === nextDay);
+  const nextDayWeek = Math.min(8, Math.ceil(nextDay/7));
+  const nextDayInWeek = nextDay - (nextDayWeek-1)*7;
+
+  // Dots de semana
+  const weekDots = Array.from({length:8},(_,i)=>{
+    const w=i+1;
+    const autoDays = Math.min(60, daysSince(S.startDate)+1);
+    const autoWeek = Math.min(8, Math.ceil(autoDays/7));
+    const isManual = w <= cw && w > autoWeek;
+    let cls = w < autoWeek ? 'done' : w === autoWeek && w < cw ? 'unlocked' : w === cw ? 'current' : isManual ? 'unlocked' : 'future';
+    if (w < autoWeek) cls = 'done';
+    if (w === autoWeek && w < cw) cls = 'unlocked';
+    if (w === cw) cls = 'current';
+    if (w > cw) cls = 'future';
+    const sym = w < autoWeek ? '✓' : w <= cw && w > autoWeek ? '🟡' : w === cw ? '▶' : w;
+    return `<div class="wd ${cls}">${sym}</div>`;
+  }).join('');
+
+  // Descripción del día dentro de la semana
+  const dayLabel = `Día ${cd} · Semana ${cw} (día ${Math.min(7,(cd-(cw-1)*7))}/7)`;
+
+  return `
+  <div class="flag"><div class="fb g"></div><div class="fe">🇮🇹</div><div class="fb r"></div></div>
+  <div class="ht">Italiano per Spagnoli</div>
+  <div class="hs">📖 Tu academia de bolsillo · Nivel B1</div>
+  <div style="padding:0 16px">
+    <div class="streak-c">
+      <div class="sf">🔥</div>
+      <div class="si"><h2>${S.streak||0} días</h2><p>racha activa</p><p style="margin-top:3px">📅 ${dayLabel}</p></div>
+    </div>
+    <div class="stats-r">
+      <div class="sm"><span class="v" style="color:var(--terra)">${totalUnlocked}</span><span class="l">🔓 Desbl.</span></div>
+      <div class="sm"><span class="v" style="color:var(--blue)">${pct}%</span><span class="l">📈 Vistas</span></div>
+      <div class="sm"><span class="v" style="color:var(--ok)">${S.totalCorrect||0}</span><span class="l">✅ Total</span></div>
+    </div>
+    <div class="due-c">
+      <h3>📬 Tarjetas para HOY</h3>
+      <div class="due-n">${due.length}</div>
+      <p>${due.length===0?'🎉 ¡Todo al día! Vuelve mañana.':due.length<10?'✅ Sesión cortita — ¡perfecta!':'💪 Sesión completa — ¡tú puedes!'}</p>
+    </div>
+    <button class="btn btn-p" onclick="goTo('session')">▶ Empezar sesión de hoy 🃏</button>
+    ${canUnlock ? `
+    <div class="unlock-c">
+      <h3>🔓 ¿Quieres más contenido hoy?</h3>
+      <p>Mañana se desbloquean automáticamente <strong>${newCardsNextDay.length > 0 ? newCardsNextDay.length + ' tarjetas nuevas' : 'el repaso del día ' + nextDay}</strong> (Semana ${nextDayWeek}, día ${nextDayInWeek}/7). Puedes adelantarlo ahora:</p>
+      <button class="btn btn-gold" onclick="unlockNextDay()" style="font-size:13px;padding:11px">🚀 Desbloquear Día ${nextDay}${newCardsNextDay.length > 0 ? ' (+' + newCardsNextDay.length + ' tarjetas)' : ' (repaso)'}</button>
+    </div>` : `<div style="background:rgba(46,139,87,.1);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;font-weight:700;color:var(--ok)">🏆 ¡Has desbloqueado todo el programa! El SRS gestiona tu repaso.</div>`}
+    <div class="week-progress">
+      <h3>📅 Semana ${cw}/8 — ${PLAN[cw-1].title}</h3>
+      <div class="weeks-dots">${weekDots}</div>
+      <div style="margin-top:8px;font-size:11px;font-weight:700;color:var(--ink2)">✓ completada automáticamente · ▶ semana actual · 🟡 desbloqueada manualmente · número = pendiente</div>
+    </div>
+    <div style="background:rgba(201,154,46,.09);border-radius:14px;padding:12px 14px;box-shadow:var(--sh);margin-bottom:12px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:5px">💡 Tip del día</div>
+      <div style="font-size:12.5px;color:var(--ink2);font-weight:600;line-height:1.5">${getTip()}</div>
+    </div>
+  </div>`;
 }
 
-function renderListDet(v,list){
-  const done=list.items.filter(i=>i.checked).length;
-  const pct=list.items.length?Math.round(done/list.items.length*100):0;
-  const det=mk('div','ldet');
-  const hdr=mk('div','ldh');
-  const bk=mk('button','bkb','←');bk.onclick=()=>{activeList=null;renderLists();};
-  const tt=mk('div','ldtitle',list.title);tt.style.borderLeftColor=list.color;
-  const cnt=mk('div','','','font-size:.7rem;color:var(--mu);margin-right:6px');cnt.textContent=done+'/'+list.items.length;
-  const dl=mk('button','mb mbd','🗑');dl.style='flex:0;padding:8px 12px;';
-  dl.onclick=()=>{lists=lists.filter(l=>l.id!==list.id);save();activeList=null;renderLists();};
-  hdr.appendChild(bk);hdr.appendChild(tt);hdr.appendChild(cnt);hdr.appendChild(dl);det.appendChild(hdr);
-  if(list.items.length){const pb=mk('div','pgb','','margin-bottom:12px');const pf=mk('div','pgf','','width:'+pct+'%;background:'+list.color);pb.appendChild(pf);const pt=mk('div','pgt',pct+'% completado');const pw=mk('div');pw.appendChild(pb);pw.appendChild(pt);det.appendChild(pw);}
-  const la=mk('div','ladd');
-  const ai=mk('input','fi');ai.type='text';ai.placeholder='Añadir elemento… (Enter)';
-  const ab=mk('button','mb mbp','＋');ab.style='flex:0;padding:10px 14px;';
-  const doAdd=()=>{if(!ai.value.trim())return;const i=lists.findIndex(l=>l.id===list.id);if(i>=0)lists[i].items.push({id:uid(),text:ai.value.trim(),checked:false});save();renderLists();};
-  ai.onkeydown=e=>{if(e.key==='Enter')doAdd();};ab.onclick=doAdd;
-  la.appendChild(ai);la.appendChild(ab);det.appendChild(la);
-  const its=mk('div','litems');
-  if(!list.items.length){const em=mk('div','empty');em.appendChild(mk('div','empty-ico','📝'));em.appendChild(mk('div','empty-txt','Lista vacía.'));its.appendChild(em);}
-  list.items.forEach(item=>{
-    const row=mk('div','lirow');
-    const chk=mk('div','lichk');
-    chk.style.cssText=`border-color:${item.checked?list.color:'rgba(120,120,255,.2)'};background:${item.checked?list.color+'22':'transparent'}`;
-    if(item.checked)chk.innerHTML=`<span style="color:${list.color}">✓</span>`;
-    chk.onclick=()=>{const li=lists.findIndex(l=>l.id===list.id);if(li>=0){const ii=lists[li].items.findIndex(i=>i.id===item.id);if(ii>=0)lists[li].items[ii].checked=!lists[li].items[ii].checked;}save();renderLists();};
-    const tx=mk('span','litxt'+(item.checked?' ck':''),item.text);
-    const dl_=mk('button','lidel','✕');dl_.onclick=()=>{const li=lists.findIndex(l=>l.id===list.id);if(li>=0)lists[li].items=lists[li].items.filter(i=>i.id!==item.id);save();renderLists();};
-    row.appendChild(chk);row.appendChild(tx);row.appendChild(dl_);its.appendChild(row);
-  });
-  det.appendChild(its);v.appendChild(det);
-  setTimeout(()=>ai.focus(),80);
-}
-
-function openListModal(){
-  let title='',color=COLORS[0];
-  const body=document.getElementById('mb-body');body.innerHTML='';
-  body.appendChild(mk('div','mtitle','<em>📋</em> Nueva lista'));
-  const fg1=mk('div','fg','<label class="flbl">Nombre</label>');
-  const inp=mk('input','fi');inp.type='text';inp.placeholder='Brainstorming, Pendientes, Compras…';
-  inp.oninput=e=>title=e.target.value;inp.onkeydown=e=>{if(e.key==='Enter'&&title.trim())saveList(title,color);};
-  fg1.appendChild(inp);body.appendChild(fg1);
-  const fg2=mk('div','fg','<label class="flbl">Color</label>');
-  const cr=mk('div','cswrow');
-  COLORS.forEach(c=>{const sw=mk('div','csw'+(c===color?' sel':''),'','background:'+c);sw.onclick=()=>{color=c;cr.querySelectorAll('.csw').forEach(x=>x.classList.remove('sel'));sw.classList.add('sel');};cr.appendChild(sw);});
-  fg2.appendChild(cr);body.appendChild(fg2);
-  const acts=mk('div','macts');
-  const canc=mk('button','mb mbs','Cancelar');canc.onclick=closeModal;
-  const ok=mk('button','mb mbp','Crear');ok.onclick=()=>{if(title.trim())saveList(title,color);};
-  acts.appendChild(canc);acts.appendChild(ok);body.appendChild(acts);
-  document.getElementById('ov').style.display='flex';
-  setTimeout(()=>inp.focus(),80);
-}
-function saveList(t,c){lists.push({id:uid(),title:t,color:c,items:[],createdAt:today()});save();closeModal();renderLists();}
-
-/* ── SEARCH ─────────────────────────────────────────────────────────────── */
-function initSearch(){
-  const inp=document.getElementById('si'),dd=document.getElementById('sdd');
-  inp.addEventListener('input',()=>{
-    const q=inp.value.trim();if(q.length<2){dd.style.display='none';return;}
-    const res=evs.filter(e=>e.title.toLowerCase().includes(q.toLowerCase())||(e.notes&&e.notes.toLowerCase().includes(q.toLowerCase()))).slice(0,8);
-    dd.innerHTML='';
-    if(!res.length){dd.innerHTML='<div class="srch-empty">Sin resultados</div>';dd.style.display='block';return;}
-    res.forEach(ev=>{
-      const row=mk('div','srch-row');
-      const dot=mk('div','srch-dot','','background:'+ev.color);
-      const lbl=mk('span','srch-lbl',ev.title);if(ev.completed){lbl.style.opacity='.5';lbl.style.textDecoration='line-through';}
-      const d=dU(ev.date);const dl_=mk('span','srch-days',d<0?'vencida':d===0?'hoy':d+'d');
-      row.onclick=()=>{dd.style.display='none';inp.value='';openModal(ev);};
-      row.appendChild(dot);row.appendChild(lbl);row.appendChild(dl_);dd.appendChild(row);
-    });
-    dd.style.display='block';
-  });
-  inp.addEventListener('keydown',e=>{if(e.key==='Escape'){inp.value='';dd.style.display='none';}});
-  document.addEventListener('click',e=>{if(!document.querySelector('.srch').contains(e.target))dd.style.display='none';});
-}
-
-/* ── TAB & RENDER ────────────────────────────────────────────────────────── */
-function setTab(tab){
-  curTab=tab;
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
-  document.getElementById('v-wk').style.display=tab==='wk'?'flex':'none';
-  if(tab==='wk')document.getElementById('v-wk').style.flexDirection='column';
-  document.getElementById('v-wk').style.flex=tab==='wk'?'1':'';
-  document.getElementById('v-wk').style.minHeight=tab==='wk'?'0':'';
-  document.getElementById('v-mo').style.display=tab==='mo'?'block':'none';
-  document.getElementById('v-li').style.display=tab==='li'?'block':'none';
+function unlockNextDay() {
+  const next = getCurrentDay() + 1;
+  if (next > 60) return;
+  S.unlockedDay = Math.max(S.unlockedDay || 1, next);
+  saveState();
   render();
 }
-function render(){
-  if(curTab==='wk')renderWeek();
-  else if(curTab==='mo')renderMonth();
-  else renderLists();
+
+function getTip() {
+  const tips=["🧠 El SRS muestra cada tarjeta justo antes de que la olvides. ¡Confía en el algoritmo!","⏰ 15 minutos diarios son más eficaces que 2 horas los fines de semana.","🇮🇹 El italiano y el español comparten un 80% de vocabulario. ¡Ya sabes mucho!","🔄 Cuando fallas una tarjeta, vuelve a la caja 1. Es normal y necesario.","📅 Las tarjetas en caja 5 se repasan cada 30 días. ¡Ya están en tu memoria a largo plazo!","🎯 Objetivo: 117 palabras + expresiones = base sólida de nivel B1.","🍕 El italiano para hispanohablantes es 30-50% más fácil por la proximidad lingüística.","📖 Después de la sesión, visita la sección Gramática para reforzar la teoría."];
+  return tips[new Date().getDay()%tips.length];
 }
 
-/* ── INIT ────────────────────────────────────────────────────────────────── */
-document.getElementById('tabs').addEventListener('click',e=>{
-  const t=e.target.closest('[data-tab]');if(t)setTab(t.dataset.tab);
-});
-document.getElementById('fab').onclick=()=>openModal({},today(),'');
-document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal();});
-document.addEventListener('keydown',e=>{
-  if(e.key==='n'&&!e.ctrlKey&&!e.metaKey&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))openModal({},today(),'');
-  if(e.key==='Escape')closeModal();
-});
-
-initSearch();
-initNotif();
-setTab('wk');
-setInterval(()=>{if(curTab==='wk')renderWeek();},60000);
-
-/* ── PWA: ICONO + MANIFEST ─────────────────────────────────────────────── */
-(function(){
-  // Genera el icono con canvas (192×192 y 512×512)
-  function makeIcon(size){
-    const c=document.createElement('canvas');
-    c.width=c.height=size;const ctx=c.getContext('2d');
-    const r=size*0.208; // radio esquinas
-    // Fondo degradado
-    const g=ctx.createLinearGradient(0,0,size,size);
-    g.addColorStop(0,'#6d60e8');g.addColorStop(0.5,'#8b6ff0');g.addColorStop(1,'#c084fc');
-    ctx.beginPath();
-    ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);
-    ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);
-    ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);
-    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
-    ctx.fillStyle=g;ctx.fill();
-    // Símbolo ◈
-    const fs=Math.round(size*0.52);
-    ctx.fillStyle='rgba(255,255,255,0.95)';
-    ctx.font=`bold ${fs}px serif`;
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('◈',size/2,size/2+size*0.03);
-    // Texto "P" pequeño debajo — solo en tamaño grande
-    if(size>=512){
-      ctx.font=`600 ${Math.round(size*0.1)}px 'Outfit',sans-serif`;
-      ctx.fillStyle='rgba(255,255,255,0.6)';
-      ctx.fillText('PLANIFICADOR',size/2,size*0.84);
-    }
-    return c.toDataURL('image/png');
+// ─── SESSION ───
+function rSession() {
+  if (session.done || !session.cards.length) {
+    if (!session.correct && !session.wrong) return `<div class="sess-empty"><div class="be">🎉</div><h2 style="font-family:'Playfair Display',serif">¡Todo al día!</h2><p>No hay tarjetas pendientes.<br>Vuelve mañana o desbloquea la semana siguiente.</p><br><button class="btn btn-p" onclick="goTo('home')">🏠 Inicio</button></div>`;
+    return rSessionDone();
   }
+  const card = session.cards[session.idx];
+  const total = session.cards.length;
+  const pct = (session.idx/total*100).toFixed(0);
+  const box = (S.cardStates[card.id]||{box:0}).box;
+  return `
+  <div class="sess-top">
+    <div class="pb-wrap"><div class="pb-fill" style="width:${pct}%"></div></div>
+    <div class="pb-txt">${session.idx}/${total} 🃏</div>
+  </div>
+  <div class="fc-wrap">
+    <div class="fc ${session.flipped?'flipped':''}" id="fc" onclick="flipCard()">
+      <div class="fc-face fc-front">
+        <div class="fc-topic">${card.topic} · S${card.w}</div>
+        <div class="fc-emoji">${card.e}</div>
+        <div class="fc-word">${card.it}</div>
+        <div class="fc-hint">🇮🇹 italiano → 🇪🇸 español</div>
+        <div class="fc-tap">👆 Toca para ver la traducción</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-topic">${card.topic} · Caja ${box+1}/5</div>
+        <div class="fc-trans">🇪🇸 ${card.es}</div>
+        <div class="divider" style="width:100%"></div>
+        <div class="fc-ex">🇮🇹 «${card.ex}»</div>
+        <div class="fc-exes">🇪🇸 ${card.exes}</div>
+      </div>
+    </div>
+  </div>
+  ${session.flipped ? `<div class="ans-btns"><button class="btn-wrong" onclick="answer(false)">❌ No lo sabía</button><button class="btn-right" onclick="answer(true)">✅ ¡Lo sabía!</button></div>` : `<div style="padding:0 16px"><div style="background:rgba(74,127,181,.08);border-radius:12px;padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--blue);text-align:center">💭 Intenta recordar antes de girar</div></div>`}`;
+}
 
-  const icon192=makeIcon(192);
-  const icon512=makeIcon(512);
+function rSessionDone() {
+  const acc = session.correct+session.wrong>0 ? Math.round(session.correct/(session.correct+session.wrong)*100) : 0;
+  return `<div style="padding:16px"><div class="done-c"><div class="done-e">${acc>=70?'🏆':acc>=50?'💪':'📚'}</div><h2>${acc>=70?'¡Sesión brillante!':acc>=50?'¡Buen trabajo!':'¡Sigue practicando!'}</h2><p>${acc}% de aciertos</p><div class="res-row"><div class="res-b ok"><div class="rn">${session.correct}</div><div class="rl">✅ Aciertos</div></div><div class="res-b err"><div class="rn">${session.wrong}</div><div class="rl">❌ Fallos</div></div></div><div style="background:rgba(74,127,181,.1);border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;color:var(--blue)">📦 Las tarjetas falladas vuelven a Caja 1 — así funciona el SRS.</div></div><button class="btn btn-p" onclick="goTo('home')">🏠 Inicio</button><button class="btn btn-gh" onclick="goTo('gram')">📖 Repasar gramática</button></div>`;
+}
 
-  // Apple touch icon
-  const al=document.createElement('link');
-  al.rel='apple-touch-icon';al.href=icon192;document.head.appendChild(al);
+function flipCard() {
+  session.flipped = !session.flipped;
+  render();
+}
 
-  // Apple splash / status bar
-  const am=document.createElement('meta');
-  am.name='apple-mobile-web-app-title';am.content='Planificador';document.head.appendChild(am);
+function answer(correct) {
+  answerCard(session.cards[session.idx].id, correct);
+  if(correct) session.correct++; else session.wrong++;
+  session.idx++;
+  session.flipped = false;
+  if (session.idx >= session.cards.length) { session.done=true; updateStreak(); }
+  render();
+}
 
-  // Manifest dinámico
-  const manifest={
-    name:'Mi Planificador',
-    short_name:'Planificador',
-    description:'Calendario semanal, tareas y listas personales',
-    display:'standalone',
-    orientation:'portrait',
-    background_color:'#0a0a1a',
-    theme_color:'#7c6ff0',
-    start_url:'.',
-    scope:'.',
-    lang:'es',
-    icons:[
-      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
-      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
-    ]
-  };
-  const ml=document.createElement('link');
-  ml.rel='manifest';
-  ml.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
-  document.head.appendChild(ml);
-})();
+// ─── PLAN ───
+function rPlan() {
+  const cw = getCurrentWeek();
+  const legend = `<div style="background:linear-gradient(135deg,#FFF3E8,#FFE5CE);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--sh)">
+    <div style="font-size:13px;font-weight:800;margin-bottom:8px">🧭 Cómo funciona</div>
+    <div style="font-size:12px;font-weight:700;color:var(--ink2);line-height:1.8">
+      ✅ Semana completada por tiempo<br>
+      ▶️ Semana actual<br>
+      🟡 Desbloqueada manualmente (desde inicio)<br>
+      🔒 Aún no disponible<br>
+      🔄 El SRS decide qué repasar — tú solo estudia
+    </div>
+  </div>`;
+  const cards = PLAN.map((p,i)=>{
+    const w=i+1, isOpen=openWeek===w;
+    const auto=Math.min(8,Math.ceil((daysSince(S.startDate)+1)/7));
+    const isDone=w<auto, isCurrent=w===cw, isUnlocked=w<=cw&&w>=auto;
+    const status=isDone?'✅':isUnlocked&&!isCurrent?'🟡':isCurrent?'▶️':'🔒';
+    return `<div class="wk-card">
+      <div class="wk-hdr" onclick="toggleWeek(${w})">
+        <div class="wk-badge" style="background:${p.bg}">${p.e}</div>
+        <div class="wk-i"><h3>Semana ${w}: ${p.title}</h3><p>${p.sub}</p></div>
+        <span class="wk-arr ${isOpen?'open':''}">${status} ${isOpen?'▾':'▸'}</span>
+      </div>
+      <div class="wk-body ${isOpen?'open':''}">
+        ${p.days.map(d=>`<div class="dy-item"><div class="dy-dot" style="background:${p.color}"></div><div class="dy-txt"><strong>${d.d} · ${d.t}</strong>${d.c}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="hd"><h1>📅 Plan 8 semanas</h1><p>Tu hoja de ruta hacia el B1 🇮🇹</p></div>${legend}${cards}`;
+}
+function toggleWeek(w){openWeek=openWeek===w?null:w;render();}
+
+// ─── VOCAB ───
+function rVocab() {
+  const ffHtml = FF.map(f=>`<div class="ff-c"><div class="ff-row"><div><div class="ff-lang" style="color:var(--green)">🇮🇹 Italiano</div><div class="ff-word">${f.it}</div><div class="ff-mean">= ${f.im}</div></div><div class="ff-arr">≠</div><div><div class="ff-lang" style="color:var(--red)">🇪🇸 Español</div><div class="ff-word">${f.es}</div><div class="ff-mean">= ${f.em}</div></div></div><div class="ff-warn">⚠️ ${f.w}</div></div>`).join('');
+  const cogHtml = COG.map(c=>`<div class="cog-c"><div class="cog-e">${c.e}</div><div class="cog-w"><div class="cog-it">🇮🇹 ${c.it}</div><div class="cog-es">🇪🇸 ${c.es}</div></div><div class="cog-n">${c.n}</div></div>`).join('');
+  const allHtml = VOCAB.map(v=>`<div class="cog-c"><div class="cog-e">${v.e}</div><div class="cog-w"><div class="cog-it">🇮🇹 ${v.it}</div><div class="cog-es">🇪🇸 ${v.es}</div></div><div style="font-size:10px;font-weight:800;padding:3px 7px;border-radius:20px;background:rgba(212,113,74,.12);color:var(--terra);flex-shrink:0">S${v.w}</div></div>`).join('');
+  return `<div class="hd"><h1>📚 Vocabulario libre</h1><p>Consulta cuando quieras · Sin presión</p></div>
+  <div class="vtabs">
+    <button class="vt ${vocabTab==='ff'?'act terra':''}" onclick="setVTab('ff')">⚠️ Falsos amigos (${FF.length})</button>
+    <button class="vt ${vocabTab==='cog'?'act blue':''}" onclick="setVTab('cog')">✨ Ya lo sabes (${COG.length})</button>
+    <button class="vt ${vocabTab==='all'?'act ok':''}" onclick="setVTab('all')">🗂️ Todo (${VOCAB.length})</button>
+  </div>
+  ${vocabTab==='ff'?`<div style="background:rgba(206,43,55,.08);border-radius:12px;padding:10px 13px;margin-bottom:12px;font-size:12.5px;font-weight:700;color:var(--red)">⚠️ Los falsos amigos más peligrosos para un hispanohablante. ¡Los ✅ son verdaderos amigos.</div>${ffHtml}`:''}
+  ${vocabTab==='cog'?`<div style="background:rgba(46,139,87,.08);border-radius:12px;padding:10px 13px;margin-bottom:12px;font-size:12.5px;font-weight:700;color:var(--green)">✨ Palabras italianas muy similares al español. ¡Ya las conoces casi todas!</div>${cogHtml}`:''}
+  ${vocabTab==='all'?`<div style="background:rgba(74,127,181,.08);border-radius:12px;padding:10px 13px;margin-bottom:12px;font-size:12.5px;font-weight:700;color:var(--blue)">🗂️ Todo el vocabulario del programa. Semana en naranja. Referencia libre.</div>${allHtml}`:''}`;
+}
+function setVTab(t){vocabTab=t;render();}
+
+// ─── GRAMMAR ───
+function rGram() {
+  const intro = `<div style="background:linear-gradient(135deg,#EBF4FF,#D5E9FF);border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:var(--sh)">
+    <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:6px">📖 Gramática B1 — Teoría completa</div>
+    <div style="font-size:12.5px;color:var(--ink2);font-weight:600;line-height:1.5">16 temas gramaticales · Consulta libre · Con tablas, ejemplos y consejos para hispanohablantes. Toca cualquier tema para desplegarlo.</div>
+  </div>`;
+
+  const cats = GRAMMAR.map(g=>{
+    const isOpen = openGram === g.id;
+    return `<div class="gram-cat">
+      <div class="gram-hdr" onclick="toggleGram('${g.id}')">
+        <div class="gram-badge" style="background:${g.bg}">${g.e}</div>
+        <div class="gram-i"><h3>${g.title}</h3><p>${g.sub}</p></div>
+        <span class="gram-arr ${isOpen?'open':''}">${isOpen?'▾':'▸'}</span>
+      </div>
+      <div class="gram-body ${isOpen?'open':''}">${g.content}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="hd"><h1>📖 Gramática</h1><p>Teoría completa hasta B1 · Siempre disponible</p></div>${intro}${cats}`;
+}
+function toggleGram(id){openGram=openGram===id?null:id;render();}
+
+// ─── STATS ───
+function rStats() {
+  const cw=getCurrentWeek(), total=VOCAB.length, seen=Object.keys(S.cardStates).length;
+  const correct=S.totalCorrect||0, wrong=S.totalWrong||0;
+  const acc=correct+wrong>0?Math.round(correct/(correct+wrong)*100):0;
+  const boxes=[0,0,0,0,0,0];
+  VOCAB.forEach(c=>{const st=S.cardStates[c.id];boxes[st?st.box:0]++;});
+  const bc=['#999','#D4714A','#C99A2E','#4A7FB5','#2E8B57','#CE2B37'];
+  const bl=['🆕 Nueva','C1\n1d','C2\n3d','C3\n7d','C4\n14d','C5\n30d'];
+  const boxHtml=boxes.map((n,i)=>`<div class="bx"><span class="bn" style="color:${bc[i]}">${n}</span><span class="bl">${bl[i]}</span></div>`).join('');
+  const pct=total?Math.round(seen/total*100):0;
+  const circ=2*Math.PI*54, off=circ-(pct/100*circ);
+  return `<div class="hd"><h1>📊 Tu progreso</h1><p>Estadísticas de aprendizaje</p></div>
+  <div class="ring-w"><svg width="130" height="130"><circle cx="65" cy="65" r="54" fill="none" stroke="rgba(42,33,24,.08)" stroke-width="12"/><circle cx="65" cy="65" r="54" fill="none" stroke="var(--terra)" stroke-width="12" stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round" transform="rotate(-90 65 65)" style="transition:stroke-dashoffset .8s ease"/><text x="65" y="61" text-anchor="middle" font-size="21" font-weight="900" fill="var(--terra)">${pct}%</text><text x="65" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink2)">completado</text></svg></div>
+  <div class="card"><div class="sec">📦 Distribución SRS por cajas</div><div class="boxes-g">${boxHtml}</div><div style="font-size:12px;color:var(--ink2);font-weight:600;text-align:center">Cajas altas = memoria consolidada 🧠</div></div>
+  <div class="acc-c"><div class="sec">📈 Resumen</div>
+    <div class="acc-row"><span>📅 Semana actual</span><span class="acc-val" style="color:var(--terra)">S${cw}/8</span></div>
+    <div class="acc-row"><span>🔥 Racha</span><span class="acc-val" style="color:var(--terra)">${S.streak||0} días</span></div>
+    <div class="acc-row"><span>👁️ Tarjetas vistas</span><span class="acc-val" style="color:var(--blue)">${seen}/${total}</span></div>
+    <div class="acc-row"><span>✅ Aciertos totales</span><span class="acc-val" style="color:var(--ok)">${correct}</span></div>
+    <div class="acc-row"><span>❌ Fallos totales</span><span class="acc-val" style="color:var(--err)">${wrong}</span></div>
+    <div class="acc-row"><span>🎯 Precisión</span><span class="acc-val" style="color:${acc>=70?'var(--ok)':acc>=50?'var(--gold)':'var(--err)'}">${acc}%</span></div>
+  </div>
+  <div style="margin-top:8px"><button class="btn btn-gh" onclick="if(confirm('¿Resetear TODO el progreso?'))resetAll()">🗑️ Resetear progreso (¡cuidado!)</button></div>`;
+}
+
+function resetAll(){S={startDate:null,streak:0,lastStudied:null,cardStates:{},totalCorrect:0,totalWrong:0,unlockedDay:1};saveState();screen='home';render();}
+
+// ─── SETUP ───
+function renderSetup() {
+  document.getElementById('app').innerHTML=`<div class="setup">
+    <div class="setup-flag">🇮🇹</div>
+    <h1>Italiano per Spagnoli</h1>
+    <p>Tu academia de bolsillo para alcanzar el nivel B1.</p>
+    <div style="text-align:left;margin:12px 0;background:var(--paper);border-radius:14px;padding:15px;box-shadow:var(--sh);width:100%">
+      <div style="font-size:12.5px;font-weight:600;line-height:1.9">
+        🃏 <strong>117 tarjetas</strong> con vocabulario esencial<br>
+        🧠 <strong>SRS científico</strong> — repite justo antes de olvidar<br>
+        📅 <strong>Plan 8 semanas</strong> — día a día<br>
+        🔓 <strong>Desbloqueo manual</strong> — avanza cuando quieras<br>
+        📖 <strong>Gramática B1</strong> — 16 temas, siempre disponible<br>
+        ⚠️ <strong>Falsos amigos</strong> — las trampas del italiano<br>
+        💾 <strong>100% offline</strong> — guardado en tu dispositivo
+      </div>
+    </div>
+    <div class="setup-note">⏰ Solo 15-20 minutos al día.<br>La constancia > la duración.</div>
+    <button class="btn btn-p" onclick="startApp()" style="width:100%;font-size:16px;padding:17px">🚀 ¡Empezar hoy!</button>
+    <p style="font-size:12px;color:var(--ink2);margin-top:10px">Progreso guardado en este dispositivo 📱</p>
+  </div>`;
+}
+
+function startApp(){S.startDate=todayStr();S.streak=0;S.lastStudied=null;S.unlockedDay=1;saveState();screen='home';render();}
+
+// ═══ INIT ═══
+loadState();
+render();
 </script>
 </body>
 </html>
