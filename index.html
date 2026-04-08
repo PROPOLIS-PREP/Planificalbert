@@ -150,13 +150,16 @@ button{cursor:pointer;border:none;background:none;color:inherit;}
   border-top:1px dashed rgba(120,120,255,.05);pointer-events:none;}
 
 /* Timed events */
-.ev{position:absolute;border-radius:8px;padding:4px 7px;cursor:pointer;
-  overflow:hidden;z-index:10;transition:filter .12s,transform .12s;
-  border:1px solid rgba(0,0,0,.15);}
-.ev:hover{filter:brightness(1.18);transform:scaleX(1.015);}
-.ev-title{font-size:.6rem;font-weight:700;color:#fff;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ev-time{font-size:.5rem;color:rgba(255,255,255,.8);margin-top:0;}
+.ev{position:absolute;border-radius:7px;padding:3px 5px;cursor:pointer;
+  overflow:hidden;z-index:10;transition:filter .12s;
+  border:1px solid rgba(0,0,0,.18);
+  display:flex;flex-direction:column;align-items:flex-start;}
+.ev:hover{filter:brightness(1.15);}
+.ev-title{font-weight:800;color:#fff;line-height:1.15;
+  word-break:break-word;overflow-wrap:anywhere;white-space:normal;
+  width:100%;flex:1;overflow:hidden;}
+.ev-time{font-size:.46rem;color:rgba(255,255,255,.8);margin-top:1px;
+  white-space:nowrap;flex-shrink:0;letter-spacing:.01em;}
 
 /* Current time indicator */
 .now-line{position:absolute;left:0;right:0;pointer-events:none;z-index:20;display:flex;align-items:center;}
@@ -709,8 +712,26 @@ function renderWeek(){
         const el=mk('div','ev');
         el.style.cssText=`top:${top}px;height:${h}px;left:${rc.left+cw*ev.col+2}px;width:${cw}px;`+
           `background:linear-gradient(150deg,${ev.color},${ev.color}bb);`;
-        el.appendChild(mk('div','ev-title',ev.title));
-        if(h>42)el.appendChild(mk('div','ev-time',fmtT(ev.startTime)+' – '+fmtT(ev.endTime)));
+        // Dynamic font: scale to fill box without ellipsis
+        const boxW=cw-10, boxH=h-6;
+        const words=ev.title.split(' ');
+        const longestW=Math.max(...words.map(w=>w.length));
+        const charW=longestW>8?longestW:longestW; // chars in longest word
+        // Max font fitting width: ~0.6 * charWidth per pixel
+        const fsByWidth=boxW/(longestW*0.58);
+        // Max font fitting height: give ~1.25 line height per line, fit lines in boxH
+        const estimatedLines=Math.max(1,Math.ceil(ev.title.length/(Math.max(1,Math.floor(boxW/7)))));
+        const fsByHeight=boxH/(estimatedLines*1.25);
+        // Pick smaller of the two, clamp between 7px and 16px
+        let fsPx=Math.min(fsByWidth,fsByHeight);
+        fsPx=Math.max(7,Math.min(15,fsPx));
+        const ttl=mk('div','ev-title',ev.title);
+        ttl.style.fontSize=fsPx+'px';
+        el.appendChild(ttl);
+        if(h>44){
+          const tm=mk('div','ev-time',fmtT(ev.startTime)+' – '+fmtT(ev.endTime));
+          el.appendChild(tm);
+        }
         el.onclick=()=>openModal(ev);
         grid.appendChild(el);
       });
